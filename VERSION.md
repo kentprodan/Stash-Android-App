@@ -1,12 +1,31 @@
 # Version History
 
-## Current Version: 0.1.4
+## Current Version: 0.1.5
 
 ### Release Date: December 3, 2025
 
 ---
 
-## Version 0.1.4 (Current)
+## Version 0.1.5 (Current)
+**Release Date:** December 3, 2025
+
+### What's New
+- 🎨 **Transparent Overlays** - Removed background colors for cleaner, modern look
+- 🔄 **Reorganized Controls** - Time and buttons moved above seekbar
+- 📏 **Thinner Seekbar** - Reduced height for less intrusive video controls
+- ⭕ **Circular Thumbnails** - Performer avatars now have rounded shape
+- 👆 **Tappable Performers** - Click performer thumbnail to view their page
+
+### Technical Changes
+- Added CircleShape clip to performer thumbnails
+- Added clickable modifier with navigation to performer pages
+- Restructured bottom overlay layout hierarchy
+- Removed Surface wrapper and background colors from overlays
+- Adjusted Slider height modifier for thinner appearance
+
+---
+
+## Version 0.1.4
 **Release Date:** December 3, 2025
 
 ### What's New
