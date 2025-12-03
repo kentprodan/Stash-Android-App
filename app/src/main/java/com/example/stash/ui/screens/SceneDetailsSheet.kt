@@ -306,24 +306,31 @@ fun SceneDetailsSheet(
                             if (availableTags.isEmpty()) {
                                 Text("Loading tags...", style = MaterialTheme.typography.bodyMedium)
                             } else {
-                                availableTags.forEach { tag ->
-                                    TextButton(
-                                        onClick = {
-                                            android.util.Log.d("SceneDetailsSheet", "Existing tag clicked: ${tag.name}, sceneId=${currentScene.id}")
-                                            scope.launch {
-                                                try {
-                                                    android.util.Log.d("SceneDetailsSheet", "Starting addTagToScene coroutine")
-                                                    viewModel.addTagToScene(currentScene.id, currentScene.tags, tag)
-                                                    android.util.Log.d("SceneDetailsSheet", "addTagToScene completed, closing dialog")
-                                                    showAddTagDialog = false
-                                                } catch (e: Exception) {
-                                                    android.util.Log.e("SceneDetailsSheet", "Error in addTagToScene", e)
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .heightIn(max = 300.dp)
+                                        .verticalScroll(rememberScrollState())
+                                ) {
+                                    availableTags.forEach { tag ->
+                                        TextButton(
+                                            onClick = {
+                                                android.util.Log.d("SceneDetailsSheet", "Existing tag clicked: ${tag.name}, sceneId=${currentScene.id}")
+                                                scope.launch {
+                                                    try {
+                                                        android.util.Log.d("SceneDetailsSheet", "Starting addTagToScene coroutine")
+                                                        viewModel.addTagToScene(currentScene.id, currentScene.tags, tag)
+                                                        android.util.Log.d("SceneDetailsSheet", "addTagToScene completed, closing dialog")
+                                                        showAddTagDialog = false
+                                                    } catch (e: Exception) {
+                                                        android.util.Log.e("SceneDetailsSheet", "Error in addTagToScene", e)
+                                                    }
                                                 }
-                                            }
-                                        },
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) {
-                                        Text(tag.name, modifier = Modifier.fillMaxWidth())
+                                            },
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            Text(tag.name, modifier = Modifier.fillMaxWidth())
+                                        }
                                     }
                                 }
                             }

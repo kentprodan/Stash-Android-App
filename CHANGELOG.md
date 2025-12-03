@@ -5,12 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.16] - 2025-12-03
+# Changelog
 
+All notable changes to this project will be documented in this file.
+
+## [0.1.17] - 2024-12-03
 ### Changed
-- Tag width now wraps content (text + X button) instead of filling equal space
-- Tags displayed in horizontally scrollable single row
-- Removed chunked layout for better space utilization
+- Made available tags list scrollable in Add Tag dialog
+- Available tags list now shows all tags from server instead of limiting to 11
+- Added vertical scroll with 300dp max height for better UX
+
+## [0.1.16] - 2024-12-03
+### Changed
+- Optimized tag width and layout in Reels Info sheet
+- Tags now use wrap content width instead of equal spacing
+- Added horizontal scroll for tags when they exceed screen width
 
 ### Technical
 - Tags use natural width with horizontal scroll

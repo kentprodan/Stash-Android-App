@@ -1,12 +1,22 @@
 # Version History
 
-## Current Version: 0.1.16
+## Current Version: 0.1.17
 
 ### Release Date: December 3, 2025
 
 ---
 
-## Version 0.1.16 (Current)
+## Version 0.1.17 (Current)
+**Release Date:** December 3, 2025
+
+### Changes
+- Made available tags list scrollable in Add Tag dialog
+- Available tags list now shows all tags from server instead of limiting to 11
+- Added vertical scroll with 300dp max height for better UX
+
+---
+
+## Version 0.1.16
 **Release Date:** December 3, 2025
 
 ### What's New
