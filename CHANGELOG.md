@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2025-12-03
+
+### Added
+- Play history tracking - Videos automatically increment play count on Stash server when playback starts
+- O-count increment functionality - Tap button to increment O-count with real-time UI updates
+- O-count reset functionality - Reset O-count to 0 via server mutation
+- 5-star rating system in Reels screen with dialog interface
+- GraphQL mutations for scene tracking (SceneIncrementPlayCount, SceneIncrementO, SceneResetO, SceneUpdate)
+- Visual feedback for rated scenes (yellow star icon)
+- Session-based play tracking to prevent duplicate counts
+
+### Changed
+- Star icon changes color when scene is rated
+- Rating display shows stars instead of just percentage
+- ReelsViewModel now manages scene state updates for O-count and rating
+- ReelItem now tracks video playback state with ExoPlayer listener
+
 ## [0.1.1] - 2025-12-03
 
 ### Added

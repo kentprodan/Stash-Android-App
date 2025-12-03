@@ -1,0 +1,3 @@
+mutation SceneResetO($id: ID!) {
+  sceneResetO(id: $id)
+}

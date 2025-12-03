@@ -37,6 +37,8 @@ fun ReelsScreen(navController: NavController, viewModel: ReelsViewModel = viewMo
     val scenes by viewModel.scenes.collectAsState()
     var showDetailsSheet by remember { mutableStateOf(false) }
     var selectedScene by remember { mutableStateOf<SceneItem?>(null) }
+    var showRatingDialog by remember { mutableStateOf(false) }
+    var ratingSceneId by remember { mutableStateOf("") }
 
     when (val state = scenes) {
         is UiState.Loading -> {
@@ -70,7 +72,7 @@ fun ReelsScreen(navController: NavController, viewModel: ReelsViewModel = viewMo
                         state = pagerState
                     ) { page ->
                         val scene = sceneList[page]
-                        ReelItem(scene = scene)
+                        ReelItem(scene = scene, viewModel = viewModel)
                     }
 
                     // Overlay controls
@@ -87,7 +89,9 @@ fun ReelsScreen(navController: NavController, viewModel: ReelsViewModel = viewMo
                         // O-Count
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             FloatingActionButton(
-                                onClick = { /* TODO: Increment O-count */ },
+                                onClick = { 
+                                    currentScene?.let { viewModel.incrementOCount(it.id) }
+                                },
                                 modifier = Modifier.size(48.dp)
                             ) {
                                 Icon(Icons.Default.TrendingUp, contentDescription = "O-Count")
@@ -103,19 +107,26 @@ fun ReelsScreen(navController: NavController, viewModel: ReelsViewModel = viewMo
 
                         // Rating
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            IconButton(onClick = { /* TODO: Rate */ }) {
+                            IconButton(onClick = { 
+                                currentScene?.let {
+                                    ratingSceneId = it.id
+                                    showRatingDialog = true
+                                }
+                            }) {
                                 Icon(
                                     Icons.Default.Star,
                                     contentDescription = "Rate",
-                                    tint = Color.White
+                                    tint = if (currentScene?.rating != null && currentScene!!.rating!! > 0) Color.Yellow else Color.White
                                 )
                             }
                             currentScene?.rating?.let {
-                                Text(
-                                    text = "$it%",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = Color.White
-                                )
+                                if (it > 0) {
+                                    Text(
+                                        text = "${it / 20}★",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = Color.White
+                                    )
+                                }
                             }
                         }
 
@@ -164,7 +175,7 @@ fun ReelsScreen(navController: NavController, viewModel: ReelsViewModel = viewMo
                         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text(selectedScene!!.title, style = MaterialTheme.typography.headlineSmall)
                             Text("Duration: ${(selectedScene!!.duration / 60).toInt()} min")
-                            Text("Rating: ${selectedScene!!.rating ?: "N/A"}%")
+                            Text("Rating: ${selectedScene!!.rating?.let { "${it / 20}★ ($it%)" } ?: "Not rated"}")
                             Text("O-Count: ${selectedScene!!.oCount ?: 0}")
                             Spacer(Modifier.height(16.dp))
                             Button(
@@ -176,16 +187,51 @@ fun ReelsScreen(navController: NavController, viewModel: ReelsViewModel = viewMo
                         }
                     }
                 }
+
+                // Rating dialog
+                if (showRatingDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showRatingDialog = false },
+                        title = { Text("Rate Scene") },
+                        text = {
+                            Column {
+                                Text("Select rating (1-5 stars)")
+                                Spacer(Modifier.height(16.dp))
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceEvenly
+                                ) {
+                                    (1..5).forEach { stars ->
+                                        FilledTonalButton(
+                                            onClick = {
+                                                viewModel.updateRating(ratingSceneId, stars * 20)
+                                                showRatingDialog = false
+                                            }
+                                        ) {
+                                            Text("$stars★")
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        confirmButton = {
+                            TextButton(onClick = { showRatingDialog = false }) {
+                                Text("Cancel")
+                            }
+                        }
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-fun ReelItem(scene: SceneItem) {
+fun ReelItem(scene: SceneItem, viewModel: ReelsViewModel = viewModel()) {
     android.util.Log.d("ReelsScreen", "Loading scene: ${scene.title}, streamUrl: ${scene.streamUrl}")
     
     val context = LocalContext.current
+    var hasTrackedPlay by remember { mutableStateOf(false) }
     
     // Create ExoPlayer only when streamUrl is available
     val exoPlayer = remember(scene.streamUrl) {
@@ -195,6 +241,17 @@ fun ReelItem(scene: SceneItem) {
                 prepare()
                 playWhenReady = true
                 repeatMode = Player.REPEAT_MODE_ONE
+                
+                // Add listener to track play
+                addListener(object : Player.Listener {
+                    override fun onPlaybackStateChanged(playbackState: Int) {
+                        if (playbackState == Player.STATE_READY && !hasTrackedPlay) {
+                            android.util.Log.d("ReelsScreen", "Video started playing: ${scene.title}")
+                            viewModel.incrementPlayCount(scene.id)
+                            hasTrackedPlay = true
+                        }
+                    }
+                })
             }
         } else null
     }

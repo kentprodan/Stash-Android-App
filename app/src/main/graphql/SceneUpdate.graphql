@@ -1,0 +1,8 @@
+mutation SceneUpdate($input: SceneUpdateInput!) {
+  sceneUpdate(input: $input) {
+    id
+    rating100
+    o_counter
+    play_count
+  }
+}

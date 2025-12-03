@@ -1,0 +1,5 @@
+mutation SceneIncrementO($id: ID!) {
+  sceneAddO(id: $id) {
+    count
+  }
+}

@@ -14,6 +14,9 @@ class ReelsViewModel(application: Application) : AndroidViewModel(application) {
     private val settingsStore = SettingsStore(application)
     private val _scenes = MutableStateFlow<UiState<List<SceneItem>>>(UiState.Loading)
     val scenes: StateFlow<UiState<List<SceneItem>>> = _scenes.asStateFlow()
+    
+    private var repository: StashRepository? = null
+    private val trackedScenes = mutableSetOf<String>()
 
     init {
         loadScenes()
@@ -25,8 +28,8 @@ class ReelsViewModel(application: Application) : AndroidViewModel(application) {
                 if (url != null && key != null) {
                     try {
                         val client = GraphqlClient().create(url, key)
-                        val repo = StashRepository(client, url, key)
-                        _scenes.value = UiState.Success(repo.reelsRandom(50))
+                        repository = StashRepository(client, url, key)
+                        _scenes.value = UiState.Success(repository!!.reelsRandom(50))
                     } catch (e: Exception) {
                         android.util.Log.e("ReelsViewModel", "Error loading scenes", e)
                         _scenes.value = UiState.Error("${e.javaClass.simpleName}: ${e.message}")
@@ -36,7 +39,57 @@ class ReelsViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun incrementPlayCount(sceneId: String) {
+        if (trackedScenes.contains(sceneId)) {
+            android.util.Log.d("ReelsViewModel", "Scene $sceneId already tracked in this session")
+            return
+        }
+        
+        viewModelScope.launch {
+            repository?.incrementScenePlayCount(sceneId)
+            trackedScenes.add(sceneId)
+        }
+    }
+
+    fun incrementOCount(sceneId: String) {
+        viewModelScope.launch {
+            val newCount = repository?.incrementSceneOCount(sceneId)
+            if (newCount != null) {
+                updateSceneInList(sceneId) { it.copy(oCount = newCount) }
+            }
+        }
+    }
+
+    fun resetOCount(sceneId: String) {
+        viewModelScope.launch {
+            val newCount = repository?.resetSceneOCount(sceneId)
+            if (newCount != null) {
+                updateSceneInList(sceneId) { it.copy(oCount = newCount) }
+            }
+        }
+    }
+
+    fun updateRating(sceneId: String, rating: Int) {
+        viewModelScope.launch {
+            val success = repository?.updateSceneRating(sceneId, rating)
+            if (success == true) {
+                updateSceneInList(sceneId) { it.copy(rating = rating) }
+            }
+        }
+    }
+
+    private fun updateSceneInList(sceneId: String, update: (SceneItem) -> SceneItem) {
+        val currentState = _scenes.value
+        if (currentState is UiState.Success) {
+            val updatedList = currentState.data.map { scene ->
+                if (scene.id == sceneId) update(scene) else scene
+            }
+            _scenes.value = UiState.Success(updatedList)
+        }
+    }
+
     fun refresh() {
+        trackedScenes.clear()
         loadScenes()
     }
 }

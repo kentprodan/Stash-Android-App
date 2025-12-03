@@ -124,4 +124,50 @@ class StashRepository(private val apollo: ApolloClient, private val baseUrl: Str
             false
         }
     }
+
+    suspend fun incrementScenePlayCount(sceneId: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            apollo.mutation(SceneIncrementPlayCountMutation(sceneId)).execute()
+            android.util.Log.d("StashRepository", "Incremented play count for scene: $sceneId")
+            true
+        } catch (e: Exception) {
+            android.util.Log.e("StashRepository", "Failed to increment play count for scene: $sceneId", e)
+            false
+        }
+    }
+
+    suspend fun incrementSceneOCount(sceneId: String): Int? = withContext(Dispatchers.IO) {
+        try {
+            val response = apollo.mutation(SceneIncrementOMutation(sceneId)).execute()
+            val newCount = response.data?.sceneAddO?.count
+            android.util.Log.d("StashRepository", "Incremented O-count for scene: $sceneId, new count: $newCount")
+            newCount
+        } catch (e: Exception) {
+            android.util.Log.e("StashRepository", "Failed to increment O-count for scene: $sceneId", e)
+            null
+        }
+    }
+
+    suspend fun resetSceneOCount(sceneId: String): Int? = withContext(Dispatchers.IO) {
+        try {
+            val response = apollo.mutation(SceneResetOMutation(sceneId)).execute()
+            val newCount = response.data?.sceneResetO
+            android.util.Log.d("StashRepository", "Reset O-count for scene: $sceneId, new count: $newCount")
+            newCount
+        } catch (e: Exception) {
+            android.util.Log.e("StashRepository", "Failed to reset O-count for scene: $sceneId", e)
+            null
+        }
+    }
+
+    suspend fun updateSceneRating(sceneId: String, rating: Int): Boolean = withContext(Dispatchers.IO) {
+        try {
+            apollo.mutation(SceneUpdateMutation(com.example.stash.graphql.type.SceneUpdateInput(id = sceneId, rating100 = Optional.present(rating)))).execute()
+            android.util.Log.d("StashRepository", "Updated rating for scene: $sceneId to $rating")
+            true
+        } catch (e: Exception) {
+            android.util.Log.e("StashRepository", "Failed to update rating for scene: $sceneId", e)
+            false
+        }
+    }
 }

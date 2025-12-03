@@ -1,0 +1,5 @@
+mutation SceneIncrementPlayCount($id: ID!) {
+  sceneAddPlay(id: $id) {
+    count
+  }
+}
