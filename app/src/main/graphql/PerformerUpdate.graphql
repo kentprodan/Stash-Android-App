@@ -1,0 +1,7 @@
+mutation PerformerUpdate($input: PerformerUpdateInput!) {
+  performerUpdate(input: $input) {
+    id
+    rating100
+    favorite
+  }
+}

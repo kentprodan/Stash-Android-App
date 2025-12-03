@@ -1,0 +1,24 @@
+query FindImages($filter: FindFilterType) {
+  findImages(filter: $filter) {
+    count
+    images {
+      id
+      title
+      date
+      paths {
+        thumbnail
+        image
+      }
+      files {
+        width
+        height
+        size
+      }
+      rating100
+      tags {
+        id
+        name
+      }
+    }
+  }
+}

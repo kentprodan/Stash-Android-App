@@ -1,0 +1,18 @@
+query FindPerformer($id: ID!) {
+  findPerformer(id: $id) {
+    id
+    name
+    image_path
+    rating100
+    favorite
+    scene_count
+    o_counter
+    birthdate
+    height_cm
+    weight
+    career_length
+    ethnicity
+    country
+    details
+  }
+}

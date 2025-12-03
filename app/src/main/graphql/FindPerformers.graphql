@@ -1,0 +1,14 @@
+query FindPerformers($filter: FindFilterType) {
+  findPerformers(filter: $filter) {
+    count
+    performers {
+      id
+      name
+      image_path
+      rating100
+      favorite
+      scene_count
+      o_counter
+    }
+  }
+}

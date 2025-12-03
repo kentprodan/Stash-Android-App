@@ -1,0 +1,9 @@
+query GetStats {
+  stats {
+    scene_count
+    image_count
+    performer_count
+    total_o_count
+    total_play_duration
+  }
+}
