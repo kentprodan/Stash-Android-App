@@ -25,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -254,8 +255,10 @@ fun SceneDetailsSheet(
                                 Button(
                                     onClick = {
                                         if (newTagName.isNotBlank()) {
-                                            viewModel.createAndAddTag(currentScene.id, currentScene.tags, newTagName.trim())
-                                            showAddTagDialog = false
+                                            scope.launch {
+                                                viewModel.createAndAddTag(currentScene.id, currentScene.tags, newTagName.trim())
+                                                showAddTagDialog = false
+                                            }
                                         }
                                     },
                                     enabled = newTagName.isNotBlank()
@@ -275,8 +278,10 @@ fun SceneDetailsSheet(
                                 availableTags.forEach { tag ->
                                     TextButton(
                                         onClick = {
-                                            viewModel.addTagToScene(currentScene.id, currentScene.tags, tag)
-                                            showAddTagDialog = false
+                                            scope.launch {
+                                                viewModel.addTagToScene(currentScene.id, currentScene.tags, tag)
+                                                showAddTagDialog = false
+                                            }
                                         },
                                         modifier = Modifier.fillMaxWidth()
                                     ) {

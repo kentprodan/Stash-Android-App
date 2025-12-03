@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.14] - 2025-12-03
+
+### Fixed
+- Tag creation now properly waits for server response before closing dialog
+- New tags now appear immediately after creation
+- Tag addition operations now complete before UI updates
+
+### Technical
+- Converted `addTagToScene` and `createAndAddTag` to suspend functions
+- UI now uses coroutine scope to wait for tag operations to complete
+- Dialog closes only after successful tag creation and addition
+
 ## [0.1.13] - 2025-12-03
 
 ### Added

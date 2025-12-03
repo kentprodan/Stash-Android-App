@@ -1,12 +1,27 @@
 # Version History
 
-## Current Version: 0.1.13
+## Current Version: 0.1.14
 
 ### Release Date: December 3, 2025
 
 ---
 
-## Version 0.1.13 (Current)
+## Version 0.1.14 (Current)
+**Release Date:** December 3, 2025
+
+### Bug Fixes
+ - 🐛 **Tag Creation Fixed** - Tags now properly save to server and appear immediately
+ - ⏱️ **Async Completion** - Dialog waits for operations to complete before closing
+ - ✅ **Reliable Updates** - Tag addition now guaranteed to finish before UI updates
+
+### Technical Changes
+ - Converted tag operations to suspend functions for proper async handling
+ - UI launches coroutines with scope to wait for completion
+ - State updates guaranteed before dialog dismissal
+
+---
+
+## Version 0.1.13
 **Release Date:** December 3, 2025
 
 ### What's New

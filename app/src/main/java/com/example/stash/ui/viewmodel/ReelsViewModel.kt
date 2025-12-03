@@ -87,26 +87,22 @@ class ReelsViewModel(application: Application) : AndroidViewModel(application) {
         return repository?.allTags() ?: emptyList()
     }
 
-    fun addTagToScene(sceneId: String, currentTags: List<com.example.stash.repository.TagItem>, newTag: com.example.stash.repository.TagItem) {
-        viewModelScope.launch {
-            val updatedTags = (currentTags + newTag).distinctBy { it.id }
-            val success = repository?.updateSceneTags(sceneId, updatedTags.map { it.id })
-            if (success == true) {
-                updateSceneInList(sceneId) { it.copy(tags = updatedTags) }
-                android.util.Log.d("ReelsViewModel", "Added tag to scene: $sceneId")
-            }
+    suspend fun addTagToScene(sceneId: String, currentTags: List<com.example.stash.repository.TagItem>, newTag: com.example.stash.repository.TagItem) {
+        val updatedTags = (currentTags + newTag).distinctBy { it.id }
+        val success = repository?.updateSceneTags(sceneId, updatedTags.map { it.id })
+        if (success == true) {
+            updateSceneInList(sceneId) { it.copy(tags = updatedTags) }
+            android.util.Log.d("ReelsViewModel", "Added tag to scene: $sceneId")
         }
     }
 
-    fun createAndAddTag(sceneId: String, currentTags: List<com.example.stash.repository.TagItem>, tagName: String) {
-        viewModelScope.launch {
-            val newTag = repository?.createTag(tagName)
-            if (newTag != null) {
-                android.util.Log.d("ReelsViewModel", "Tag created successfully: ${newTag.name}")
-                addTagToScene(sceneId, currentTags, newTag)
-            } else {
-                android.util.Log.e("ReelsViewModel", "Failed to create tag: $tagName")
-            }
+    suspend fun createAndAddTag(sceneId: String, currentTags: List<com.example.stash.repository.TagItem>, tagName: String) {
+        val newTag = repository?.createTag(tagName)
+        if (newTag != null) {
+            android.util.Log.d("ReelsViewModel", "Tag created successfully: ${newTag.name}")
+            addTagToScene(sceneId, currentTags, newTag)
+        } else {
+            android.util.Log.e("ReelsViewModel", "Failed to create tag: $tagName")
         }
     }
 
