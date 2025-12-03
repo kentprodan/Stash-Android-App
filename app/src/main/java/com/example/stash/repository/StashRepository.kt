@@ -236,9 +236,13 @@ class StashRepository(private val apollo: ApolloClient, private val baseUrl: Str
 
     suspend fun updateSceneTags(sceneId: String, tagIds: List<String>): Boolean = withContext(Dispatchers.IO) {
         try {
-            apollo.mutation(SceneUpdateMutation(com.example.stash.graphql.type.SceneUpdateInput(id = sceneId, tag_ids = Optional.present(tagIds)))).execute()
-            android.util.Log.d("StashRepository", "Updated tags for scene: $sceneId")
-            true
+            android.util.Log.d("StashRepository", "updateSceneTags: sceneId=$sceneId, tagIds=$tagIds")
+            val response = apollo.mutation(SceneUpdateMutation(com.example.stash.graphql.type.SceneUpdateInput(id = sceneId, tag_ids = Optional.present(tagIds)))).execute()
+            android.util.Log.d("StashRepository", "Updated tags for scene: $sceneId, response.hasErrors=${response.hasErrors()}")
+            if (response.hasErrors()) {
+                android.util.Log.e("StashRepository", "GraphQL errors: ${response.errors}")
+            }
+            !response.hasErrors()
         } catch (e: Exception) {
             android.util.Log.e("StashRepository", "Failed to update tags for scene: $sceneId", e)
             false
@@ -247,13 +251,18 @@ class StashRepository(private val apollo: ApolloClient, private val baseUrl: Str
 
     suspend fun createTag(name: String): TagItem? = withContext(Dispatchers.IO) {
         try {
+            android.util.Log.d("StashRepository", "createTag called: name=$name")
             val response = apollo.mutation(TagCreateMutation(com.example.stash.graphql.type.TagCreateInput(name = name))).execute()
+            android.util.Log.d("StashRepository", "createTag response: hasErrors=${response.hasErrors()}, data=${response.data}, errors=${response.errors}")
             response.data?.tagCreate?.let {
-                android.util.Log.d("StashRepository", "Created tag: ${it.name}")
+                android.util.Log.d("StashRepository", "Created tag successfully: id=${it.id}, name=${it.name}")
                 TagItem(id = it.id, name = it.name)
+            } ?: run {
+                android.util.Log.e("StashRepository", "createTag returned null data")
+                null
             }
         } catch (e: Exception) {
-            android.util.Log.e("StashRepository", "Failed to create tag: $name", e)
+            android.util.Log.e("StashRepository", "Exception in createTag: $name", e)
             null
         }
     }

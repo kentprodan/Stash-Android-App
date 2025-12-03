@@ -88,21 +88,51 @@ class ReelsViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     suspend fun addTagToScene(sceneId: String, currentTags: List<com.example.stash.repository.TagItem>, newTag: com.example.stash.repository.TagItem) {
+        android.util.Log.d("ReelsViewModel", "addTagToScene: sceneId=$sceneId, currentTags=${currentTags.map { it.name }}, newTag=${newTag.name}")
         val updatedTags = (currentTags + newTag).distinctBy { it.id }
+        android.util.Log.d("ReelsViewModel", "addTagToScene: updatedTags=${updatedTags.map { it.name }}")
         val success = repository?.updateSceneTags(sceneId, updatedTags.map { it.id })
+        android.util.Log.d("ReelsViewModel", "addTagToScene: server update success=$success")
         if (success == true) {
             updateSceneInList(sceneId) { it.copy(tags = updatedTags) }
-            android.util.Log.d("ReelsViewModel", "Added tag to scene: $sceneId")
+            android.util.Log.d("ReelsViewModel", "Added tag to scene: $sceneId, tags now: ${updatedTags.map { it.name }}")
+        } else {
+            android.util.Log.e("ReelsViewModel", "Failed to update tags on server for scene: $sceneId")
         }
     }
 
     suspend fun createAndAddTag(sceneId: String, currentTags: List<com.example.stash.repository.TagItem>, tagName: String) {
-        val newTag = repository?.createTag(tagName)
-        if (newTag != null) {
-            android.util.Log.d("ReelsViewModel", "Tag created successfully: ${newTag.name}")
-            addTagToScene(sceneId, currentTags, newTag)
-        } else {
-            android.util.Log.e("ReelsViewModel", "Failed to create tag: $tagName")
+        android.util.Log.d("ReelsViewModel", "createAndAddTag called: sceneId=$sceneId, tagName=$tagName, currentTags=${currentTags.map { it.name }}")
+        try {
+            var tagToAdd = repository?.createTag(tagName)
+            android.util.Log.d("ReelsViewModel", "createTag returned: ${tagToAdd?.name ?: "null"}")
+            
+            // If tag creation failed (likely because it already exists), try to find it
+            if (tagToAdd == null) {
+                android.util.Log.d("ReelsViewModel", "Tag creation failed, searching for existing tag with name: $tagName")
+                val allTags = repository?.allTags() ?: emptyList()
+                tagToAdd = allTags.find { it.name.equals(tagName, ignoreCase = true) }
+                android.util.Log.d("ReelsViewModel", "Found existing tag: ${tagToAdd?.name ?: "not found"}")
+            }
+            
+            if (tagToAdd != null) {
+                android.util.Log.d("ReelsViewModel", "Adding tag to scene: ${tagToAdd.name}")
+                addTagToScene(sceneId, currentTags, tagToAdd)
+                android.util.Log.d("ReelsViewModel", "addTagToScene completed")
+            } else {
+                android.util.Log.e("ReelsViewModel", "Failed to create or find tag: $tagName")
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("ReelsViewModel", "Exception in createAndAddTag", e)
+        }
+    }
+
+    suspend fun removeTagFromScene(sceneId: String, currentTags: List<com.example.stash.repository.TagItem>, tagToRemove: com.example.stash.repository.TagItem) {
+        val updatedTags = currentTags.filter { it.id != tagToRemove.id }
+        val success = repository?.updateSceneTags(sceneId, updatedTags.map { it.id })
+        if (success == true) {
+            updateSceneInList(sceneId) { it.copy(tags = updatedTags) }
+            android.util.Log.d("ReelsViewModel", "Removed tag from scene: $sceneId")
         }
     }
 

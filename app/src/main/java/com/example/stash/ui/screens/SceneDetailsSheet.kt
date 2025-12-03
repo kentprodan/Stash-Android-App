@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.*
@@ -209,20 +210,51 @@ fun SceneDetailsSheet(
                 }
             }
             if (currentScene.tags.isNotEmpty()) {
-                Row(
+                Column(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    currentScene.tags.take(6).forEach { tag ->
-                        Surface(
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            shape = MaterialTheme.shapes.small
+                    currentScene.tags.chunked(2).forEach { rowTags ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Text(
-                                text = tag.name,
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                                style = MaterialTheme.typography.labelMedium
-                            )
+                            rowTags.forEach { tag ->
+                                Surface(
+                                    color = MaterialTheme.colorScheme.primaryContainer,
+                                    shape = MaterialTheme.shapes.small,
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(start = 12.dp, top = 6.dp, bottom = 6.dp, end = 4.dp)
+                                    ) {
+                                        Text(
+                                            text = tag.name,
+                                            style = MaterialTheme.typography.labelMedium,
+                                            modifier = Modifier.weight(1f)
+                                        )
+                                        IconButton(
+                                            onClick = {
+                                                scope.launch {
+                                                    viewModel.removeTagFromScene(currentScene.id, currentScene.tags, tag)
+                                                }
+                                            },
+                                            modifier = Modifier.size(20.dp)
+                                        ) {
+                                            Icon(
+                                                Icons.Filled.Close,
+                                                contentDescription = "Remove ${tag.name}",
+                                                modifier = Modifier.size(16.dp),
+                                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                            )
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -255,9 +287,16 @@ fun SceneDetailsSheet(
                                 Button(
                                     onClick = {
                                         if (newTagName.isNotBlank()) {
+                                            android.util.Log.d("SceneDetailsSheet", "Create button clicked: tagName=${newTagName.trim()}, sceneId=${currentScene.id}")
                                             scope.launch {
-                                                viewModel.createAndAddTag(currentScene.id, currentScene.tags, newTagName.trim())
-                                                showAddTagDialog = false
+                                                try {
+                                                    android.util.Log.d("SceneDetailsSheet", "Starting createAndAddTag coroutine")
+                                                    viewModel.createAndAddTag(currentScene.id, currentScene.tags, newTagName.trim())
+                                                    android.util.Log.d("SceneDetailsSheet", "createAndAddTag completed, closing dialog")
+                                                    showAddTagDialog = false
+                                                } catch (e: Exception) {
+                                                    android.util.Log.e("SceneDetailsSheet", "Error in createAndAddTag", e)
+                                                }
                                             }
                                         }
                                     },
@@ -278,9 +317,16 @@ fun SceneDetailsSheet(
                                 availableTags.forEach { tag ->
                                     TextButton(
                                         onClick = {
+                                            android.util.Log.d("SceneDetailsSheet", "Existing tag clicked: ${tag.name}, sceneId=${currentScene.id}")
                                             scope.launch {
-                                                viewModel.addTagToScene(currentScene.id, currentScene.tags, tag)
-                                                showAddTagDialog = false
+                                                try {
+                                                    android.util.Log.d("SceneDetailsSheet", "Starting addTagToScene coroutine")
+                                                    viewModel.addTagToScene(currentScene.id, currentScene.tags, tag)
+                                                    android.util.Log.d("SceneDetailsSheet", "addTagToScene completed, closing dialog")
+                                                    showAddTagDialog = false
+                                                } catch (e: Exception) {
+                                                    android.util.Log.e("SceneDetailsSheet", "Error in addTagToScene", e)
+                                                }
                                             }
                                         },
                                         modifier = Modifier.fillMaxWidth()

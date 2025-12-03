@@ -1,12 +1,33 @@
 # Version History
 
-## Current Version: 0.1.14
+## Current Version: 0.1.15
 
 ### Release Date: December 3, 2025
 
 ---
 
-## Version 0.1.14 (Current)
+## Version 0.1.15 (Current)
+**Release Date:** December 3, 2025
+
+### What's New
+ - 🗑️ **Tag Removal** - X button on each tag to remove it from scene
+ - 📋 **All Tags Shown** - Removed 6-tag display limit
+ - 🔄 **Better Layout** - Tags wrap in rows of 2
+
+### Bug Fixes
+ - 🐛 **Duplicate Tag Fix** - Typing existing tag name now adds it properly
+ - 🔍 **Smart Tag Search** - Falls back to searching if tag already exists
+ - 📝 **Enhanced Logging** - Comprehensive debugging for tag operations
+
+### Technical Changes
+ - Tag removal with `removeTagFromScene` suspend function
+ - Duplicate detection with automatic fallback to search
+ - Tags displayed in responsive Column layout
+ - Complete operation logging for diagnostics
+
+---
+
+## Version 0.1.14
 **Release Date:** December 3, 2025
 
 ### Bug Fixes

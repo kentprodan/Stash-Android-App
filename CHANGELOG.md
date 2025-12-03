@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.15] - 2025-12-03
+
+### Added
+- Tag removal: X button on each tag to remove it from the scene
+- All tags now displayed (removed 6-tag limit)
+- Tags wrap in rows of 2 for better layout
+
+### Fixed
+- Typing existing tag name now properly adds it to scene
+- Duplicate tag handling: searches for existing tag if creation fails
+- Enhanced logging for tag operations debugging
+
+### Technical
+- `removeTagFromScene` suspend function for tag deletion
+- Fallback to tag search when creation fails (handles duplicates)
+- Comprehensive logging throughout tag operations
+- Tags displayed in Column with chunked rows
+
 ## [0.1.14] - 2025-12-03
 
 ### Fixed
