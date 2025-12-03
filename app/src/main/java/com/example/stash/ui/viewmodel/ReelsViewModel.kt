@@ -16,7 +16,6 @@ class ReelsViewModel(application: Application) : AndroidViewModel(application) {
     val scenes: StateFlow<UiState<List<SceneItem>>> = _scenes.asStateFlow()
     
     private var repository: StashRepository? = null
-    private val trackedScenes = mutableSetOf<String>()
 
     init {
         loadScenes()
@@ -40,14 +39,9 @@ class ReelsViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun incrementPlayCount(sceneId: String) {
-        if (trackedScenes.contains(sceneId)) {
-            android.util.Log.d("ReelsViewModel", "Scene $sceneId already tracked in this session")
-            return
-        }
-        
         viewModelScope.launch {
             repository?.incrementScenePlayCount(sceneId)
-            trackedScenes.add(sceneId)
+            android.util.Log.d("ReelsViewModel", "Incremented play count for scene: $sceneId")
         }
     }
 
@@ -89,7 +83,6 @@ class ReelsViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun refresh() {
-        trackedScenes.clear()
         loadScenes()
     }
 }

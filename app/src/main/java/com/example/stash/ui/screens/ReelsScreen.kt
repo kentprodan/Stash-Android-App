@@ -73,99 +73,53 @@ fun ReelsScreen(navController: NavController, viewModel: ReelsViewModel = viewMo
                         state = pagerState
                     ) { page ->
                         val scene = sceneList[page]
-                        ReelItem(scene = scene, viewModel = viewModel)
+                        ReelItem(
+                            scene = scene,
+                            viewModel = viewModel,
+                            onRatingClick = {
+                                ratingSceneId = scene.id
+                                showRatingDialog = true
+                            },
+                            onDetailsClick = {
+                                selectedScene = scene
+                                showDetailsSheet = true
+                            },
+                            onIncrementOCount = {
+                                viewModel.incrementOCount(scene.id)
+                            }
+                        )
                     }
 
-                    // Overlay controls
-                    Column(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .padding(16.dp)
-                            .align(Alignment.CenterEnd),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        horizontalAlignment = Alignment.End
-                    ) {
-                        val currentScene = sceneList.getOrNull(pagerState.currentPage)
-                        
-                        // O-Count
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            FloatingActionButton(
-                                onClick = { 
-                                    currentScene?.let { viewModel.incrementOCount(it.id) }
-                                },
-                                modifier = Modifier.size(48.dp)
+                    // Performer info overlay at top left
+                    val currentScene = sceneList.getOrNull(pagerState.currentPage)
+                    currentScene?.performers?.firstOrNull()?.let { performer ->
+                        Surface(
+                            modifier = Modifier
+                                .align(Alignment.TopStart)
+                                .padding(16.dp),
+                            color = Color.Black.copy(alpha = 0.6f),
+                            shape = MaterialTheme.shapes.medium
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Icon(Icons.Default.WaterDrop, contentDescription = "O-Count")
-                            }
-                            currentScene?.oCount?.let {
+                                AsyncImage(
+                                    model = performer.image,
+                                    contentDescription = performer.name,
+                                    modifier = Modifier.size(40.dp),
+                                    contentScale = ContentScale.Crop
+                                )
                                 Text(
-                                    text = it.toString(),
-                                    style = MaterialTheme.typography.labelSmall,
+                                    text = performer.name,
+                                    style = MaterialTheme.typography.titleSmall,
                                     color = Color.White
                                 )
                             }
                         }
-
-                        // Rating
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            IconButton(onClick = { 
-                                currentScene?.let {
-                                    ratingSceneId = it.id
-                                    showRatingDialog = true
-                                }
-                            }) {
-                                Icon(
-                                    Icons.Default.Star,
-                                    contentDescription = "Rate",
-                                    tint = if (currentScene?.rating != null && currentScene!!.rating!! > 0) Color.Yellow else Color.White
-                                )
-                            }
-                            currentScene?.rating?.let {
-                                if (it > 0) {
-                                    Text(
-                                        text = "${it / 20}★",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = Color.White
-                                    )
-                                }
-                            }
-                        }
-
-                        // Details
-                        IconButton(onClick = { 
-                            selectedScene = currentScene
-                            showDetailsSheet = true
-                        }) {
-                            Icon(
-                                Icons.Default.Info,
-                                contentDescription = "Details",
-                                tint = Color.White
-                            )
-                        }
                     }
 
-                    // Scene title overlay at bottom
-                    Surface(
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .fillMaxWidth(),
-                        color = Color.Black.copy(alpha = 0.6f)
-                    ) {
-                        Column(Modifier.padding(16.dp)) {
-                            sceneList.getOrNull(pagerState.currentPage)?.let { scene ->
-                                Text(
-                                    text = scene.title,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = Color.White
-                                )
-                                Text(
-                                    text = "${(scene.duration / 60).toInt()} min",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = Color.White.copy(alpha = 0.8f)
-                                )
-                            }
-                        }
-                    }
                 }
 
                 // Details bottom sheet
@@ -239,14 +193,22 @@ fun ReelsScreen(navController: NavController, viewModel: ReelsViewModel = viewMo
 }
 
 @Composable
-fun ReelItem(scene: SceneItem, viewModel: ReelsViewModel = viewModel()) {
+fun ReelItem(
+    scene: SceneItem,
+    viewModel: ReelsViewModel = viewModel(),
+    onRatingClick: () -> Unit,
+    onDetailsClick: () -> Unit,
+    onIncrementOCount: () -> Unit
+) {
     android.util.Log.d("ReelsScreen", "Loading scene: ${scene.title}, streamUrl: ${scene.streamUrl}")
     
     val context = LocalContext.current
-    var hasTrackedPlay by remember { mutableStateOf(false) }
+    var hasTrackedPlay by remember(scene.id) { mutableStateOf(false) }
+    var currentPosition by remember(scene.id) { mutableStateOf(0L) }
+    var duration by remember(scene.id) { mutableStateOf(0L) }
     
     // Create ExoPlayer only when streamUrl is available
-    val exoPlayer = remember(scene.streamUrl) {
+    val exoPlayer = remember(scene.id, scene.streamUrl) {
         if (scene.streamUrl != null) {
             ExoPlayer.Builder(context).build().apply {
                 setMediaItem(MediaItem.fromUri(scene.streamUrl))
@@ -254,18 +216,27 @@ fun ReelItem(scene: SceneItem, viewModel: ReelsViewModel = viewModel()) {
                 playWhenReady = true
                 repeatMode = Player.REPEAT_MODE_ONE
                 
-                // Add listener to track play
+                // Add listener to track play and update position
                 addListener(object : Player.Listener {
                     override fun onPlaybackStateChanged(playbackState: Int) {
                         if (playbackState == Player.STATE_READY && !hasTrackedPlay) {
                             android.util.Log.d("ReelsScreen", "Video started playing: ${scene.title}")
                             viewModel.incrementPlayCount(scene.id)
                             hasTrackedPlay = true
+                            duration = this@apply.duration
                         }
                     }
                 })
             }
         } else null
+    }
+    
+    // Update current position periodically
+    LaunchedEffect(exoPlayer) {
+        while (exoPlayer != null) {
+            currentPosition = exoPlayer.currentPosition
+            kotlinx.coroutines.delay(100)
+        }
     }
     
     // Release player when composable leaves composition
@@ -296,6 +267,106 @@ fun ReelItem(scene: SceneItem, viewModel: ReelsViewModel = viewModel()) {
                 },
                 modifier = Modifier.fillMaxSize()
             )
+            
+            // Bottom controls overlay
+            Surface(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth(),
+                color = Color.Black.copy(alpha = 0.6f)
+            ) {
+                Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+                    // Scene title
+                    Text(
+                        text = scene.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.White,
+                        maxLines = 1
+                    )
+                    
+                    Spacer(Modifier.height(8.dp))
+                    
+                    // Progress bar
+                    Slider(
+                        value = if (duration > 0) currentPosition.toFloat() else 0f,
+                        onValueChange = { exoPlayer.seekTo(it.toLong()) },
+                        valueRange = 0f..duration.toFloat(),
+                        colors = SliderDefaults.colors(
+                            thumbColor = Color.White,
+                            activeTrackColor = Color.White,
+                            inactiveTrackColor = Color.Gray
+                        )
+                    )
+                    
+                    // Time and actions row
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Time display
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(
+                                text = formatTime(currentPosition),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.White
+                            )
+                            Text(
+                                text = "/",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.Gray
+                            )
+                            Text(
+                                text = formatTime(duration),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.Gray
+                            )
+                        }
+                        
+                        // Action buttons
+                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            // O-Count
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                IconButton(onClick = onIncrementOCount, modifier = Modifier.size(40.dp)) {
+                                    Icon(
+                                        Icons.Default.WaterDrop,
+                                        contentDescription = "O-Count",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                                scene.oCount?.let {
+                                    Text(
+                                        text = it.toString(),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = Color.White
+                                    )
+                                }
+                            }
+                            
+                            // Rating
+                            IconButton(onClick = onRatingClick, modifier = Modifier.size(40.dp)) {
+                                Icon(
+                                    Icons.Default.Star,
+                                    contentDescription = "Rate",
+                                    tint = if (scene.rating != null && scene.rating!! > 0) Color.Yellow else Color.White,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            
+                            // Details
+                            IconButton(onClick = onDetailsClick, modifier = Modifier.size(40.dp)) {
+                                Icon(
+                                    Icons.Default.Info,
+                                    contentDescription = "Details",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         } else if (scene.thumbnail != null) {
             // Fallback to thumbnail
             AsyncImage(
@@ -325,5 +396,16 @@ fun ReelItem(scene: SceneItem, viewModel: ReelsViewModel = viewModel()) {
                 )
             }
         }
+    }
+}
+
+fun formatTime(millis: Long): String {
+    val seconds = (millis / 1000) % 60
+    val minutes = (millis / (1000 * 60)) % 60
+    val hours = (millis / (1000 * 60 * 60))
+    return if (hours > 0) {
+        String.format("%d:%02d:%02d", hours, minutes, seconds)
+    } else {
+        String.format("%d:%02d", minutes, seconds)
     }
 }

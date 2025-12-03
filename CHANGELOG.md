@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.4] - 2025-12-03
+
+### Added
+- Performer info display at top left of Reels screen (thumbnail + name)
+- Video progress bar with seek functionality
+- Current playback time display (left corner)
+- Total video duration display (right corner)
+- Real-time position tracking (updates every 100ms)
+- Proper time formatting (MM:SS or H:MM:SS)
+- Performers data in GraphQL queries and SceneItem model
+
+### Changed
+- Redesigned Reels screen UI layout
+- Moved action buttons (O-count, Rating, Details) to bottom right
+- Removed session-based play tracking - videos now count each time viewed
+- Scene title moved to bottom overlay with video controls
+- Action buttons integrated into video control bar
+
+### Fixed
+- Videos now count in play history each time they're viewed (removed session tracking)
+- Next video in Reels properly tracks play count
+- Added scene.id as key to remember blocks for proper state reset
+
 ## [0.1.3] - 2025-12-03
 
 ### Changed

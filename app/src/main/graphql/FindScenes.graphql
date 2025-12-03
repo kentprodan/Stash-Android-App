@@ -17,6 +17,11 @@ query FindScenes($filter: FindFilterType) {
       }
       o_counter
       rating100
+      performers {
+        id
+        name
+        image_path
+      }
       tags {
         id
         name

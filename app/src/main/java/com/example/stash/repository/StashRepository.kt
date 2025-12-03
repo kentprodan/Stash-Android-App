@@ -8,7 +8,7 @@ import com.example.stash.graphql.type.PerformerUpdateInput
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-data class SceneItem(val id: String, val title: String, val thumbnail: String?, val streamUrl: String?, val duration: Double, val oCount: Int?, val rating: Int?)
+data class SceneItem(val id: String, val title: String, val thumbnail: String?, val streamUrl: String?, val duration: Double, val oCount: Int?, val rating: Int?, val performers: List<PerformerItem> = emptyList())
 data class ImageItem(val id: String, val title: String, val thumbnail: String?)
 data class PerformerItem(val id: String, val name: String, val image: String?, val rating: Int?, val favorite: Boolean, val sceneCount: Int, val oCounter: Int?)
 data class ServerStats(val totalScenes: Int, val totalImages: Int, val totalPerformers: Int, val totalPlaytime: Double, val totalOCount: Int)
@@ -38,7 +38,18 @@ class StashRepository(private val apollo: ApolloClient, private val baseUrl: Str
                 streamUrl = fullUrl(it.paths?.stream),
                 duration = it.files.firstOrNull()?.duration ?: 0.0,
                 oCount = it.o_counter,
-                rating = it.rating100
+                rating = it.rating100,
+                performers = it.performers.map { perf ->
+                    PerformerItem(
+                        id = perf.id,
+                        name = perf.name ?: "Unknown",
+                        image = fullUrl(perf.image_path),
+                        rating = null,
+                        favorite = false,
+                        sceneCount = 0,
+                        oCounter = null
+                    )
+                }
             )
         } ?: emptyList()
     }
@@ -84,7 +95,18 @@ class StashRepository(private val apollo: ApolloClient, private val baseUrl: Str
                 streamUrl = fullUrl(it.paths?.stream),
                 duration = it.files.firstOrNull()?.duration ?: 0.0,
                 oCount = it.o_counter,
-                rating = it.rating100
+                rating = it.rating100,
+                performers = it.performers.map { perf ->
+                    PerformerItem(
+                        id = perf.id,
+                        name = perf.name ?: "Unknown",
+                        image = fullUrl(perf.image_path),
+                        rating = null,
+                        favorite = false,
+                        sceneCount = 0,
+                        oCounter = null
+                    )
+                }
             )
         } ?: emptyList()
     }

@@ -1,12 +1,38 @@
 # Version History
 
-## Current Version: 0.1.3
+## Current Version: 0.1.4
 
 ### Release Date: December 3, 2025
 
 ---
 
-## Version 0.1.3 (Current)
+## Version 0.1.4 (Current)
+**Release Date:** December 3, 2025
+
+### What's New
+- 🎭 **Performer Info Display** - Performer thumbnail and name at top left
+- ⏯️ **Video Seek Controls** - Interactive progress bar to jump to any position
+- ⏱️ **Playback Time** - Current time on left, total duration on right
+- 📊 **Real-time Updates** - Position updates every 100ms
+- 🎨 **Redesigned Layout** - Action buttons moved to bottom right
+
+### Technical Changes
+- Added performers field to FindScenes GraphQL query
+- Updated SceneItem data model with performers list
+- LaunchedEffect for continuous position tracking
+- ExoPlayer seek integration
+- Time formatting helper function (formatTime)
+- Removed session-based tracking for accurate play counts
+- Scene-keyed remember blocks for proper state management
+
+### Bug Fixes
+- Videos now count correctly on each view (not just first time)
+- Next video in pager properly tracks play count
+- Fixed tracking state reset between different videos
+
+---
+
+## Version 0.1.3
 **Release Date:** December 3, 2025
 
 ### What's New
