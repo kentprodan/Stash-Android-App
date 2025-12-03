@@ -261,6 +261,18 @@ fun SceneDetailsSheet(
                     }
                 }
                 var newTagName by remember { mutableStateOf("") }
+                
+                // Filter tags based on search input
+                val filteredTags = remember(availableTags, newTagName) {
+                    if (newTagName.isBlank()) {
+                        availableTags
+                    } else {
+                        availableTags.filter { tag ->
+                            tag.name.contains(newTagName.trim(), ignoreCase = true)
+                        }
+                    }
+                }
+                
                 AlertDialog(
                     onDismissRequest = { showAddTagDialog = false },
                     title = { Text("Add Tag") },
@@ -305,6 +317,8 @@ fun SceneDetailsSheet(
                             Spacer(Modifier.height(8.dp))
                             if (availableTags.isEmpty()) {
                                 Text("Loading tags...", style = MaterialTheme.typography.bodyMedium)
+                            } else if (filteredTags.isEmpty()) {
+                                Text("No matching tags found", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
                             } else {
                                 Column(
                                     modifier = Modifier
@@ -312,7 +326,7 @@ fun SceneDetailsSheet(
                                         .heightIn(max = 300.dp)
                                         .verticalScroll(rememberScrollState())
                                 ) {
-                                    availableTags.forEach { tag ->
+                                    filteredTags.forEach { tag ->
                                         TextButton(
                                             onClick = {
                                                 android.util.Log.d("SceneDetailsSheet", "Existing tag clicked: ${tag.name}, sceneId=${currentScene.id}")

@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.18] - 2025-12-03
+### Added
+- Added search functionality to tag input field
+- Available tags list now filters in real-time as you type
+- Shows "No matching tags found" when search has no results
+
 ## [0.1.17] - 2024-12-03
 ### Changed
 - Made available tags list scrollable in Add Tag dialog

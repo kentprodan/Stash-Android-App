@@ -1,12 +1,22 @@
 # Version History
 
-## Current Version: 0.1.17
+## Current Version: 0.1.18
 
 ### Release Date: December 3, 2025
 
 ---
 
-## Version 0.1.17 (Current)
+## Version 0.1.18 (Current)
+**Release Date:** December 3, 2025
+
+### Changes
+- Added search functionality to tag input field
+- Available tags list now filters in real-time as you type
+- Shows "No matching tags found" when search has no results
+
+---
+
+## Version 0.1.17
 **Release Date:** December 3, 2025
 
 ### Changes
