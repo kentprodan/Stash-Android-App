@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.19] - 2025-12-03
+### Changed
+- Fixed play count tracking to prevent counting replays
+- Fixed play count display in info panel to increment correctly on multiple views
+- Added divider between Video Information and Play Statistics sections
+- Replaced Total Play Time with Frame Rate in info panel
+
 ## [0.1.18] - 2025-12-03
 ### Added
 - Added search functionality to tag input field

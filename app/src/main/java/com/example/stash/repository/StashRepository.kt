@@ -8,7 +8,7 @@ import com.example.stash.graphql.type.PerformerUpdateInput
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-data class SceneItem(val id: String, val title: String, val thumbnail: String?, val streamUrl: String?, val duration: Double, val oCount: Int?, val rating: Int?, val performers: List<PerformerItem> = emptyList(), val width: Int? = null, val height: Int? = null, val playCount: Int? = null, val playDuration: Double? = null, val tags: List<TagItem> = emptyList())
+data class SceneItem(val id: String, val title: String, val thumbnail: String?, val streamUrl: String?, val duration: Double, val oCount: Int?, val rating: Int?, val performers: List<PerformerItem> = emptyList(), val width: Int? = null, val height: Int? = null, val playCount: Int? = null, val playDuration: Double? = null, val tags: List<TagItem> = emptyList(), val frameRate: Double? = null)
 data class TagItem(val id: String, val name: String)
 data class ImageItem(val id: String, val title: String, val thumbnail: String?)
 data class PerformerItem(val id: String, val name: String, val image: String?, val rating: Int?, val favorite: Boolean, val sceneCount: Int, val oCounter: Int?)
@@ -44,6 +44,7 @@ class StashRepository(private val apollo: ApolloClient, private val baseUrl: Str
                 playDuration = it.play_duration,
                 oCount = it.o_counter,
                 rating = it.rating100,
+                frameRate = it.files.firstOrNull()?.frame_rate,
                 performers = it.performers.map { perf ->
                     PerformerItem(
                         id = perf.id,
@@ -111,6 +112,7 @@ class StashRepository(private val apollo: ApolloClient, private val baseUrl: Str
                 playDuration = it.play_duration,
                 oCount = it.o_counter,
                 rating = it.rating100,
+                frameRate = it.files.firstOrNull()?.frame_rate,
                 performers = it.performers.map { perf ->
                     PerformerItem(
                         id = perf.id,

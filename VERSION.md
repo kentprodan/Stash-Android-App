@@ -1,12 +1,23 @@
 # Version History
 
-## Current Version: 0.1.18
+## Current Version: 0.1.19
 
 ### Release Date: December 3, 2025
 
 ---
 
-## Version 0.1.18 (Current)
+## Version 0.1.19 (Current)
+**Release Date:** December 3, 2025
+
+### Changes
+- Fixed play count tracking to prevent counting replays
+- Fixed play count display in info panel to increment correctly on multiple views
+- Added divider between Video Information and Play Statistics sections
+- Replaced Total Play Time with Frame Rate in info panel
+
+---
+
+## Version 0.1.18
 **Release Date:** December 3, 2025
 
 ### Changes

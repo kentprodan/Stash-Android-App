@@ -86,7 +86,9 @@ fun ReelsScreen(navController: NavController, viewModel: ReelsViewModel = viewMo
                             isActive = page == pagerState.currentPage,
                             viewModel = viewModel,
                             onProgress = { id, positionMs -> livePositions[id] = positionMs },
-                            onPlayTracked = { id -> extraPlayCounts[id] = 1 },
+                            onPlayTracked = { id -> 
+                                extraPlayCounts[id] = (extraPlayCounts[id] ?: 0) + 1
+                            },
                             onRatingClick = {
                                 ratingSceneId = scene.id
                                 showRatingDialog = true
@@ -207,7 +209,7 @@ fun ReelItem(
     android.util.Log.d("ReelsScreen", "Loading scene: ${scene.title}, streamUrl: ${scene.streamUrl}")
     
     val context = LocalContext.current
-    var hasTrackedPlay by remember(scene.id) { mutableStateOf(false) }
+    var hasTrackedPlayForThisView by remember { mutableStateOf(false) }
     var currentPosition by remember(scene.id) { mutableStateOf(0L) }
     var duration by remember(scene.id) { mutableStateOf(0L) }
     var isPlaying by remember(scene.id) { mutableStateOf(true) }
@@ -220,27 +222,29 @@ fun ReelItem(
             ExoPlayer.Builder(context).build().apply {
                 setMediaItem(MediaItem.fromUri(scene.streamUrl))
                 prepare()
-                playWhenReady = true
+                playWhenReady = false  // Don't auto-play, wait for isActive
                 repeatMode = Player.REPEAT_MODE_ONE
                 
-                // Add listener to track play and update position
+                // Add listener to get duration
                 addListener(object : Player.Listener {
                     override fun onPlaybackStateChanged(playbackState: Int) {
-                        if (playbackState == Player.STATE_READY && !hasTrackedPlay) {
-                            android.util.Log.d("ReelsScreen", "Video started playing: ${scene.title}")
-                            viewModel.incrementPlayCount(scene.id)
-                            hasTrackedPlay = true
+                        if (playbackState == Player.STATE_READY) {
                             duration = this@apply.duration
-                            onPlayTracked(scene.id)
-                        }
-                        if (playbackState == Player.STATE_ENDED) {
-                            // Reset so that when the video restarts, play count is incremented again
-                            hasTrackedPlay = false
                         }
                     }
                 })
             }
         } else null
+    }
+    
+    // Track play count when scene becomes active
+    LaunchedEffect(isActive) {
+        if (isActive && !hasTrackedPlayForThisView) {
+            android.util.Log.d("ReelsScreen", "Scene became active: ${scene.title}")
+            viewModel.incrementPlayCount(scene.id)
+            hasTrackedPlayForThisView = true
+            onPlayTracked(scene.id)
+        }
     }
     
     // Pause/Play based on active page

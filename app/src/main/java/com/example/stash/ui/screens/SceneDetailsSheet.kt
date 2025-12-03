@@ -138,6 +138,9 @@ fun SceneDetailsSheet(
                     Text(resLabel + raw, style = MaterialTheme.typography.bodyMedium)
                 }
             }
+            
+            // Divider between Video Information and Play Statistics
+            HorizontalDivider()
 
             // Play Statistics (with Rating & O-Count above rows)
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -176,16 +179,14 @@ fun SceneDetailsSheet(
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                // Switch places: first Total Play Time, then Play Count
+                // Frame Rate and Play Count
                 Column(modifier = Modifier.weight(1f)) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Icon(Icons.Filled.Timer, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(16.dp))
-                        Text("Total Play Time", style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+                        Icon(Icons.Filled.HighQuality, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(16.dp))
+                        Text("Frame Rate", style = MaterialTheme.typography.labelSmall, color = Color.Gray)
                     }
-                    val totalSecondsBase = scene.playDuration ?: 0.0
-                    val totalSeconds = (playDurationSecondsOverride ?: totalSecondsBase)
-                    val totalMins = (totalSeconds / 60).toInt()
-                    Text("$totalMins min", style = MaterialTheme.typography.bodyMedium)
+                    val fps = scene.frameRate?.toInt() ?: 0
+                    Text(if (fps > 0) "$fps fps" else "Unknown", style = MaterialTheme.typography.bodyMedium)
                 }
                 Column(modifier = Modifier.weight(1f)) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {

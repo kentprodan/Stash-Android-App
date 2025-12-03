@@ -14,6 +14,7 @@ query FindScenes($filter: FindFilterType) {
         width
         height
         size
+        frame_rate
       }
       o_counter
       rating100
