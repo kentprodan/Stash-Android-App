@@ -15,8 +15,8 @@ android {
         applicationId = "com.example.stash"
         minSdk = 36
         targetSdk = 36
-        versionCode = 9
-        versionName = "0.1.8"
+        versionCode = 13
+        versionName = "0.1.13"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

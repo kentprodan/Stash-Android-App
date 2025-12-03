@@ -5,6 +5,81 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.13] - 2025-12-03
+
+### Added
+- Tag creation: create new tags on-the-fly from tag addition dialog
+- Live tag updates: newly added tags appear immediately in Info sheet
+
+### Fixed
+- Tag list now loads all tags from server instead of limiting to first page
+- Tag dialog shows all available tags, not just first 11
+- New tags now display immediately after creation without closing sheet
+
+### Technical
+- `TagCreate` mutation with `createTag` repository method
+- `createAndAddTag` ViewModel method for creating and adding tags
+- SceneDetailsSheet observes live scene state for tag updates
+- FindTags query updated to use `per_page = -1` and include count field
+
+## [0.1.12] - 2025-12-03
+
+### Added
+- Live play stats in Info sheet: play count and total play time update while watching
+- Replay counting: each video loop increments play count
+- Server-side play duration sync: accumulated watch time persisted on page away
+- Add tag feature: tap + button in Tags section to add tags to scene
+
+### Changed
+- Info sheet: Performers section moved above Video Information
+- Tags section has dedicated divider and add button
+
+### Technical
+- Session watch time tracking with loop handling
+- `updateScenePlayDuration` mutation on ReelItem disposal
+- `FindTags` query and `updateSceneTags` repository method
+- ViewModel methods: `fetchAllTags`, `addTagToScene`
+
+## [0.1.11] - 2025-12-03
+
+### Changed
+- Info sheet: added icons to all sections and labels
+- Reordered Play Statistics: Rating & O-Count now above totals
+- Totals row shows Total Play Time first, then Play Count
+- Resolution displays friendly label plus raw dimensions (e.g., Full HD (1920×1080))
+
+### Technical
+- Replaced deprecated `Divider` with `HorizontalDivider`
+- Switched to `Icons.AutoMirrored.Filled.Label` for Tags
+- Populated Reels scenes with width/height/play stats/tags in repository
+
+## [0.1.10] - 2025-12-03
+
+### Fixed
+- Reels: ensure only the active page plays audio/video
+- Pause previous ExoPlayer when paging to the next item
+
+### Technical
+- Added `isActive` coordination between pager and `ReelItem`
+- `LaunchedEffect` pauses non-active players to prevent audio bleed
+
+## [0.1.9] - 2025-12-03
+
+### Added
+- Comprehensive Reels Info sheet with detailed scene metadata
+- Video resolution (width × height) display
+- Play statistics: play count and total play duration
+- Performers list with avatars and navigation
+- Tags chips display (up to 6)
+
+### Changed
+- Replaced old info sheet with structured sections (Video Info, Play Stats, Rating & O-Count, Performers, Tags)
+- Star rating now shown with visual stars and numeric value
+
+### Improved
+- Clearer, richer scene details accessible from Reels Info button
+- Faster navigation to performer and scene pages
+
 ## [0.1.8] - 2025-12-03
 
 ### Changed

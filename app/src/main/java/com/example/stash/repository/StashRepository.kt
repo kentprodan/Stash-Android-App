@@ -8,7 +8,8 @@ import com.example.stash.graphql.type.PerformerUpdateInput
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-data class SceneItem(val id: String, val title: String, val thumbnail: String?, val streamUrl: String?, val duration: Double, val oCount: Int?, val rating: Int?, val performers: List<PerformerItem> = emptyList())
+data class SceneItem(val id: String, val title: String, val thumbnail: String?, val streamUrl: String?, val duration: Double, val oCount: Int?, val rating: Int?, val performers: List<PerformerItem> = emptyList(), val width: Int? = null, val height: Int? = null, val playCount: Int? = null, val playDuration: Double? = null, val tags: List<TagItem> = emptyList())
+data class TagItem(val id: String, val name: String)
 data class ImageItem(val id: String, val title: String, val thumbnail: String?)
 data class PerformerItem(val id: String, val name: String, val image: String?, val rating: Int?, val favorite: Boolean, val sceneCount: Int, val oCounter: Int?)
 data class ServerStats(val totalScenes: Int, val totalImages: Int, val totalPerformers: Int, val totalPlaytime: Double, val totalOCount: Int)
@@ -37,6 +38,10 @@ class StashRepository(private val apollo: ApolloClient, private val baseUrl: Str
                 thumbnail = fullUrl(it.paths?.screenshot),
                 streamUrl = fullUrl(it.paths?.stream),
                 duration = it.files.firstOrNull()?.duration ?: 0.0,
+                width = it.files.firstOrNull()?.width,
+                height = it.files.firstOrNull()?.height,
+                playCount = it.play_count,
+                playDuration = it.play_duration,
                 oCount = it.o_counter,
                 rating = it.rating100,
                 performers = it.performers.map { perf ->
@@ -48,6 +53,12 @@ class StashRepository(private val apollo: ApolloClient, private val baseUrl: Str
                         favorite = false,
                         sceneCount = 0,
                         oCounter = null
+                    )
+                },
+                tags = it.tags.map { tag ->
+                    TagItem(
+                        id = tag.id,
+                        name = tag.name
                     )
                 }
             )
@@ -94,6 +105,10 @@ class StashRepository(private val apollo: ApolloClient, private val baseUrl: Str
                 thumbnail = fullUrl(it.paths?.screenshot),
                 streamUrl = fullUrl(it.paths?.stream),
                 duration = it.files.firstOrNull()?.duration ?: 0.0,
+                width = it.files.firstOrNull()?.width,
+                height = it.files.firstOrNull()?.height,
+                playCount = it.play_count,
+                playDuration = it.play_duration,
                 oCount = it.o_counter,
                 rating = it.rating100,
                 performers = it.performers.map { perf ->
@@ -105,6 +120,12 @@ class StashRepository(private val apollo: ApolloClient, private val baseUrl: Str
                         favorite = false,
                         sceneCount = 0,
                         oCounter = null
+                    )
+                },
+                tags = it.tags.map { tag ->
+                    TagItem(
+                        id = tag.id,
+                        name = tag.name
                     )
                 }
             )
@@ -190,6 +211,50 @@ class StashRepository(private val apollo: ApolloClient, private val baseUrl: Str
         } catch (e: Exception) {
             android.util.Log.e("StashRepository", "Failed to update rating for scene: $sceneId", e)
             false
+        }
+    }
+
+    suspend fun updateScenePlayDuration(sceneId: String, totalSeconds: Double): Boolean = withContext(Dispatchers.IO) {
+        try {
+            apollo.mutation(SceneUpdateMutation(com.example.stash.graphql.type.SceneUpdateInput(id = sceneId, play_duration = Optional.present(totalSeconds)))).execute()
+            android.util.Log.d("StashRepository", "Updated play duration for scene: $sceneId to ${totalSeconds}s")
+            true
+        } catch (e: Exception) {
+            android.util.Log.e("StashRepository", "Failed to update play duration for scene: $sceneId", e)
+            false
+        }
+    }
+
+    suspend fun allTags(): List<TagItem> = withContext(Dispatchers.IO) {
+        val response = apollo.query(FindTagsQuery(filter = Optional.present(FindFilterType(per_page = Optional.present(-1), sort = Optional.present("name"))))).execute()
+        val tags = response.data?.findTags?.tags?.map {
+            TagItem(id = it.id, name = it.name)
+        } ?: emptyList()
+        android.util.Log.d("StashRepository", "Fetched ${tags.size} tags (server count: ${response.data?.findTags?.count})")
+        tags
+    }
+
+    suspend fun updateSceneTags(sceneId: String, tagIds: List<String>): Boolean = withContext(Dispatchers.IO) {
+        try {
+            apollo.mutation(SceneUpdateMutation(com.example.stash.graphql.type.SceneUpdateInput(id = sceneId, tag_ids = Optional.present(tagIds)))).execute()
+            android.util.Log.d("StashRepository", "Updated tags for scene: $sceneId")
+            true
+        } catch (e: Exception) {
+            android.util.Log.e("StashRepository", "Failed to update tags for scene: $sceneId", e)
+            false
+        }
+    }
+
+    suspend fun createTag(name: String): TagItem? = withContext(Dispatchers.IO) {
+        try {
+            val response = apollo.mutation(TagCreateMutation(com.example.stash.graphql.type.TagCreateInput(name = name))).execute()
+            response.data?.tagCreate?.let {
+                android.util.Log.d("StashRepository", "Created tag: ${it.name}")
+                TagItem(id = it.id, name = it.name)
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("StashRepository", "Failed to create tag: $name", e)
+            null
         }
     }
 }

@@ -72,13 +72,51 @@ class ReelsViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun appendPlayDuration(sceneId: String, baseSeconds: Double, additionalSeconds: Double) {
+        viewModelScope.launch {
+            val total = baseSeconds + additionalSeconds
+            val success = repository?.updateScenePlayDuration(sceneId, total)
+            if (success == true) {
+                updateSceneInList(sceneId) { it.copy(playDuration = total) }
+                android.util.Log.d("ReelsViewModel", "Updated play duration for scene: $sceneId to ${total}s")
+            }
+        }
+    }
+
+    suspend fun fetchAllTags(): List<com.example.stash.repository.TagItem> {
+        return repository?.allTags() ?: emptyList()
+    }
+
+    fun addTagToScene(sceneId: String, currentTags: List<com.example.stash.repository.TagItem>, newTag: com.example.stash.repository.TagItem) {
+        viewModelScope.launch {
+            val updatedTags = (currentTags + newTag).distinctBy { it.id }
+            val success = repository?.updateSceneTags(sceneId, updatedTags.map { it.id })
+            if (success == true) {
+                updateSceneInList(sceneId) { it.copy(tags = updatedTags) }
+                android.util.Log.d("ReelsViewModel", "Added tag to scene: $sceneId")
+            }
+        }
+    }
+
+    fun createAndAddTag(sceneId: String, currentTags: List<com.example.stash.repository.TagItem>, tagName: String) {
+        viewModelScope.launch {
+            val newTag = repository?.createTag(tagName)
+            if (newTag != null) {
+                android.util.Log.d("ReelsViewModel", "Tag created successfully: ${newTag.name}")
+                addTagToScene(sceneId, currentTags, newTag)
+            } else {
+                android.util.Log.e("ReelsViewModel", "Failed to create tag: $tagName")
+            }
+        }
+    }
+
     private fun updateSceneInList(sceneId: String, update: (SceneItem) -> SceneItem) {
         val currentState = _scenes.value
         if (currentState is UiState.Success) {
-            val updatedList = currentState.data.map { scene ->
+            val updatedScenes = currentState.data.map { scene ->
                 if (scene.id == sceneId) update(scene) else scene
             }
-            _scenes.value = UiState.Success(updatedList)
+            _scenes.value = UiState.Success(updatedScenes)
         }
     }
 

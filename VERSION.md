@@ -1,25 +1,90 @@
 # Version History
 
-## Current Version: 0.1.8
+## Current Version: 0.1.13
 
 ### Release Date: December 3, 2025
 
 ---
 
-## Version 0.1.8 (Current)
+## Version 0.1.13 (Current)
 **Release Date:** December 3, 2025
 
 ### What's New
-- 📏 **Ultra-Thin Seekbar** - Reduced to 4dp for minimal visual footprint
-- ⏱️ **Inline Time Display** - Time flanks seekbar on left and right sides
-- 🎯 **Horizontal Layout** - All elements aligned in single Row
+ - ✨ **Create Tags** - Create new tags on-the-fly from tag addition dialog
+ - 🔄 **Live Tag Updates** - Newly added tags appear immediately in Info sheet
+ - 📋 **All Tags Loaded** - Tag dialog now shows all available tags from server
+
+### Bug Fixes
+ - Fixed tag list limiting to first 11 tags
+ - Fixed new tags not displaying after creation
+ - Tags now load all pages from server (`per_page = -1`)
 
 ### Technical Changes
-- Changed seekbar height from 8dp to 4dp
-- Restructured from Column/Box layout to single Row
-- Added weight(1f) modifier to Slider for flexible width
-- Positioned times with 8dp spacing between elements
-- Maintained vertical center alignment for all components
+ - `TagCreate` mutation with `createTag` repository method
+ - `createAndAddTag` ViewModel method for tag creation flow
+ - SceneDetailsSheet observes live scene state from ViewModel
+ - FindTags query includes count field and unlimited pagination
+
+---
+
+## Version 0.1.12
+**Release Date:** December 3, 2025
+
+### What's New
+ - 📊 **Live Stats** - Play count and total play time update in real-time while watching
+ - 🔄 **Replay Tracking** - Each video loop increments play count
+ - 💾 **Server Sync** - Session watch time persisted to server on page away
+ - 🏷️ **Add Tags** - Tap + button in Tags section to add tags to scene
+ - 📐 **Section Reorder** - Performers moved above Video Info; Tags has own divider
+
+### Technical Changes
+ - Session accumulation with loop handling; `updateScenePlayDuration` on dispose
+ - `FindTags` query, `updateSceneTags` repo method, `fetchAllTags`/`addTagToScene` ViewModel methods
+ - Live stat overrides passed to SceneDetailsSheet
+
+---
+
+## Version 0.1.11
+**Release Date:** December 3, 2025
+
+### What's New
+ - 🖼️ **Info Icons** - Icons added to duration, resolution, stats, performers, tags
+ - 🎛️ **Play Stats Order** - Rating & O-count above stats; Total time before count
+ - 🧭 **Resolution Label** - Friendly labels with raw dimensions (e.g., Full HD (1920×1080))
+
+### Technical Changes
+ - Replaced `Divider` with `HorizontalDivider`
+ - Switched to `Icons.AutoMirrored.Filled.Label` for Tags
+ - Repository now maps width/height/play stats/tags for Reels scenes
+
+---
+
+## Version 0.1.10
+**Release Date:** December 3, 2025
+
+### What's New
+ - 🔇 **No Audio Bleed** - Only active page plays; previous video pauses
+
+### Technical Changes
+ - `isActive` flag wired from pager to `ReelItem`
+ - `LaunchedEffect` pauses non-active ExoPlayers, plays only current
+
+---
+
+## Version 0.1.9
+**Release Date:** December 3, 2025
+
+### What's New
+ - 📝 **Rich Info Sheet** - Detailed scene metadata in a structured bottom sheet
+ - 🖼️ **Resolution Display** - Shows video width × height
+ - 📊 **Play Stats** - Play count and total play duration
+ - 👥 **Performers List** - Avatars with navigation to performer pages
+ - 🏷️ **Tags Chips** - Display up to 6 tags for quick context
+
+### Technical Changes
+ - New `SceneDetailsSheet` composable integrated into Reels
+ - Extended repository and GraphQL to include `width`, `height`, `play_count`, `play_duration`, `tags`
+ - Opt-in to `ExperimentalMaterial3Api` for `ModalBottomSheet`
 
 ---
 

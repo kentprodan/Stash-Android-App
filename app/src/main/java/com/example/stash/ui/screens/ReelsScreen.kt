@@ -70,6 +70,9 @@ fun ReelsScreen(navController: NavController, viewModel: ReelsViewModel = viewMo
                 }
             } else {
                 val pagerState = rememberPagerState()
+                // Track live playback progress and local play count increments per scene
+                val livePositions = remember { mutableStateMapOf<String, Long>() }
+                val extraPlayCounts = remember { mutableStateMapOf<String, Int>() }
                 
                 Box(Modifier.fillMaxSize()) {
                     VerticalPager(
@@ -80,7 +83,10 @@ fun ReelsScreen(navController: NavController, viewModel: ReelsViewModel = viewMo
                         val scene = sceneList[page]
                         ReelItem(
                             scene = scene,
+                            isActive = page == pagerState.currentPage,
                             viewModel = viewModel,
+                            onProgress = { id, positionMs -> livePositions[id] = positionMs },
+                            onPlayTracked = { id -> extraPlayCounts[id] = 1 },
                             onRatingClick = {
                                 ratingSceneId = scene.id
                                 showRatingDialog = true
@@ -128,23 +134,14 @@ fun ReelsScreen(navController: NavController, viewModel: ReelsViewModel = viewMo
 
                 // Details bottom sheet
                 if (showDetailsSheet && selectedScene != null) {
-                    ModalBottomSheet(
-                        onDismissRequest = { showDetailsSheet = false }
-                    ) {
-                        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text(selectedScene!!.title, style = MaterialTheme.typography.headlineSmall)
-                            Text("Duration: ${(selectedScene!!.duration / 60).toInt()} min")
-                            Text("Rating: ${selectedScene!!.rating?.let { "${it / 20}★ ($it%)" } ?: "Not rated"}")
-                            Text("O-Count: ${selectedScene!!.oCount ?: 0}")
-                            Spacer(Modifier.height(16.dp))
-                            Button(
-                                onClick = { navController.navigate("scene/${selectedScene!!.id}") },
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text("View Full Details")
-                            }
-                        }
-                    }
+                    SceneDetailsSheet(
+                        scene = selectedScene!!,
+                        navController = navController,
+                        onDismiss = { showDetailsSheet = false },
+                        playCountOverride = ((selectedScene?.playCount ?: 0) + (extraPlayCounts[selectedScene!!.id] ?: 0)),
+                        playDurationSecondsOverride = ((selectedScene?.playDuration ?: 0.0) + ((livePositions[selectedScene!!.id] ?: 0L) / 1000.0)),
+                        viewModel = viewModel
+                    )
                 }
 
                 // Rating dialog
@@ -199,7 +196,10 @@ fun ReelsScreen(navController: NavController, viewModel: ReelsViewModel = viewMo
 @Composable
 fun ReelItem(
     scene: SceneItem,
+    isActive: Boolean,
     viewModel: ReelsViewModel = viewModel(),
+    onProgress: (sceneId: String, positionMs: Long) -> Unit,
+    onPlayTracked: (sceneId: String) -> Unit,
     onRatingClick: () -> Unit,
     onDetailsClick: () -> Unit,
     onIncrementOCount: () -> Unit
@@ -211,6 +211,8 @@ fun ReelItem(
     var currentPosition by remember(scene.id) { mutableStateOf(0L) }
     var duration by remember(scene.id) { mutableStateOf(0L) }
     var isPlaying by remember(scene.id) { mutableStateOf(true) }
+    var sessionAccumMs by remember(scene.id) { mutableStateOf(0L) }
+    var lastPosMs by remember(scene.id) { mutableStateOf(0L) }
     
     // Create ExoPlayer only when streamUrl is available
     val exoPlayer = remember(scene.id, scene.streamUrl) {
@@ -229,6 +231,11 @@ fun ReelItem(
                             viewModel.incrementPlayCount(scene.id)
                             hasTrackedPlay = true
                             duration = this@apply.duration
+                            onPlayTracked(scene.id)
+                        }
+                        if (playbackState == Player.STATE_ENDED) {
+                            // Reset so that when the video restarts, play count is incremented again
+                            hasTrackedPlay = false
                         }
                     }
                 })
@@ -236,11 +243,42 @@ fun ReelItem(
         } else null
     }
     
+    // Pause/Play based on active page
+    LaunchedEffect(isActive, exoPlayer) {
+        if (exoPlayer != null) {
+            if (isActive) {
+                exoPlayer.playWhenReady = true
+                exoPlayer.play()
+            } else {
+                exoPlayer.playWhenReady = false
+                exoPlayer.pause()
+            }
+        }
+    }
+
     // Update current position periodically
     LaunchedEffect(exoPlayer) {
         while (exoPlayer != null) {
             currentPosition = exoPlayer.currentPosition
+            onProgress(scene.id, currentPosition)
             kotlinx.coroutines.delay(100)
+        }
+    }
+
+    // Accumulate watched time considering loops
+    LaunchedEffect(exoPlayer, isPlaying) {
+        while (exoPlayer != null) {
+            if (isPlaying) {
+                val pos = exoPlayer.currentPosition
+                val delta = if (pos >= lastPosMs) pos - lastPosMs else (duration - lastPosMs) + pos
+                if (delta > 0) {
+                    sessionAccumMs += delta
+                    lastPosMs = pos
+                }
+            } else {
+                lastPosMs = exoPlayer.currentPosition
+            }
+            kotlinx.coroutines.delay(1000)
         }
     }
     
@@ -248,6 +286,11 @@ fun ReelItem(
     DisposableEffect(exoPlayer) {
         onDispose {
             exoPlayer?.release()
+            val baseSeconds = scene.playDuration ?: 0.0
+            val additionalSeconds = sessionAccumMs / 1000.0
+            if (additionalSeconds > 0) {
+                viewModel.appendPlayDuration(scene.id, baseSeconds, additionalSeconds)
+            }
         }
     }
     

@@ -17,6 +17,8 @@ query FindScenes($filter: FindFilterType) {
       }
       o_counter
       rating100
+      play_count
+      play_duration
       performers {
         id
         name
