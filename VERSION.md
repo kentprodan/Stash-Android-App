@@ -1,12 +1,27 @@
 # Version History
 
-## Current Version: 0.1.15
+## Current Version: 0.1.16
 
 ### Release Date: December 3, 2025
 
 ---
 
-## Version 0.1.15 (Current)
+## Version 0.1.16 (Current)
+**Release Date:** December 3, 2025
+
+### What's New
+ - 📏 **Optimized Tag Width** - Tags now only as wide as needed (text + X)
+ - ↔️ **Horizontal Scroll** - All tags in scrollable single row
+ - 🎯 **Better Space Use** - No more wasted space with equal widths
+
+### Technical Changes
+ - Tags wrap content width naturally
+ - Single row with horizontal scroll instead of chunked layout
+ - Removed weight modifiers for dynamic sizing
+
+---
+
+## Version 0.1.15
 **Release Date:** December 3, 2025
 
 ### What's New
