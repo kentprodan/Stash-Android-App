@@ -8,7 +8,8 @@ import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.filled.WaterDrop
+import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -94,7 +95,7 @@ fun ReelsScreen(navController: NavController, viewModel: ReelsViewModel = viewMo
                                 },
                                 modifier = Modifier.size(48.dp)
                             ) {
-                                Icon(Icons.Default.TrendingUp, contentDescription = "O-Count")
+                                Icon(Icons.Default.WaterDrop, contentDescription = "O-Count")
                             }
                             currentScene?.oCount?.let {
                                 Text(
@@ -190,25 +191,36 @@ fun ReelsScreen(navController: NavController, viewModel: ReelsViewModel = viewMo
 
                 // Rating dialog
                 if (showRatingDialog) {
+                    val currentRating = sceneList.find { it.id == ratingSceneId }?.rating?.div(20) ?: 0
+                    var selectedRating by remember { mutableStateOf(currentRating) }
+                    
                     AlertDialog(
                         onDismissRequest = { showRatingDialog = false },
                         title = { Text("Rate Scene") },
                         text = {
-                            Column {
-                                Text("Select rating (1-5 stars)")
-                                Spacer(Modifier.height(16.dp))
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("Tap to rate", style = MaterialTheme.typography.bodyMedium)
+                                Spacer(Modifier.height(24.dp))
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceEvenly
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     (1..5).forEach { stars ->
-                                        FilledTonalButton(
+                                        IconButton(
                                             onClick = {
+                                                selectedRating = stars
                                                 viewModel.updateRating(ratingSceneId, stars * 20)
                                                 showRatingDialog = false
-                                            }
+                                            },
+                                            modifier = Modifier.size(56.dp)
                                         ) {
-                                            Text("$stars★")
+                                            Icon(
+                                                imageVector = if (stars <= selectedRating) Icons.Filled.Star else Icons.Outlined.StarBorder,
+                                                contentDescription = "$stars stars",
+                                                tint = if (stars <= selectedRating) Color(0xFFFFD700) else Color.Gray,
+                                                modifier = Modifier.size(40.dp)
+                                            )
                                         }
                                     }
                                 }

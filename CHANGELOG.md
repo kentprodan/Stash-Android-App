@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.3] - 2025-12-03
+
+### Changed
+- O-Count button icon changed from trending up to water drop icon (💧)
+- Rating dialog redesigned with 5 interactive stars
+- Stars are properly aligned horizontally
+- Filled stars (⭐) show gold color for rated levels
+- Outlined stars (☆) show gray color for unrated levels
+- Larger star icons (40dp) for better touch targets
+- Rating dialog now shows current rating when opened
+
+### Improved
+- Better visual feedback for rating selection
+- More intuitive rating interface
+- Clearer rating state indication
+
 ## [0.1.2] - 2025-12-03
 
 ### Added

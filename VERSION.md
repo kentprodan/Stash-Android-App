@@ -1,12 +1,30 @@
 # Version History
 
-## Current Version: 0.1.2
+## Current Version: 0.1.3
 
 ### Release Date: December 3, 2025
 
 ---
 
-## Version 0.1.2 (Current)
+## Version 0.1.3 (Current)
+**Release Date:** December 3, 2025
+
+### What's New
+- 💧 **New O-Count Icon** - Water drop icon replaces trending up icon
+- ⭐ **Improved Rating UI** - Interactive 5-star rating dialog
+- 🎨 **Visual Polish** - Filled/outlined stars with gold and gray colors
+- 👆 **Better Touch Targets** - Larger star icons for easier selection
+
+### Technical Changes
+- WaterDrop icon for O-count button
+- StarBorder outlined icons for unrated levels
+- 40dp star size for improved usability
+- Gold (#FFD700) color for filled stars
+- Rating dialog shows current rating state
+
+---
+
+## Version 0.1.2
 **Release Date:** December 3, 2025
 
 ### What's New
