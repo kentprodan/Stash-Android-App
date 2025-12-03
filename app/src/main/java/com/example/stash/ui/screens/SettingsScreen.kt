@@ -1,6 +1,8 @@
 package com.example.stash.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -24,108 +26,289 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = 
     val connected = (url?.isNotBlank() == true) && (api?.isNotBlank() == true)
     var showServerDialog by remember { mutableStateOf(false) }
 
-    Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("Connection", style = MaterialTheme.typography.headlineLarge)
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(
+        Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp), 
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Header
+        Text(
+            "Settings",
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.primary
+        )
+        
+        Spacer(Modifier.height(8.dp))
+        
+        // Connection Section
+        Text("Connection", style = MaterialTheme.typography.titleLarge)
+        ElevatedCard(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+        ) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 ListItem(
-                    headlineContent = { Text("Status") },
-                    supportingContent = { Text(if (connected) "Connected to $url" else "Not configured") },
+                    headlineContent = { Text("Status", style = MaterialTheme.typography.titleMedium) },
+                    supportingContent = { 
+                        Text(
+                            if (connected) "Connected to $url" else "Not configured",
+                            style = MaterialTheme.typography.bodyMedium
+                        ) 
+                    },
                     leadingContent = { 
-                        Icon(
-                            if (connected) Icons.Filled.CheckCircle else Icons.Filled.Error,
-                            contentDescription = null,
-                            tint = if (connected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
-                        )
+                        Surface(
+                            shape = MaterialTheme.shapes.small,
+                            color = if (connected) 
+                                MaterialTheme.colorScheme.primaryContainer 
+                            else 
+                                MaterialTheme.colorScheme.errorContainer
+                        ) {
+                            Icon(
+                                if (connected) Icons.Filled.CheckCircle else Icons.Filled.Error,
+                                contentDescription = null,
+                                tint = if (connected) 
+                                    MaterialTheme.colorScheme.onPrimaryContainer 
+                                else 
+                                    MaterialTheme.colorScheme.onErrorContainer,
+                                modifier = Modifier.padding(8.dp)
+                            )
+                        }
                     }
                 )
+                
+                HorizontalDivider()
                 
                 when (versionInfo) {
                     is UiState.Success -> {
                         val version = (versionInfo as UiState.Success).data
                         ListItem(
-                            headlineContent = { Text("Server Version") },
+                            headlineContent = { Text("Server Version", style = MaterialTheme.typography.titleMedium) },
                             supportingContent = { 
-                                Column {
-                                    Text(version.currentVersion)
+                                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    Text(version.currentVersion, style = MaterialTheme.typography.bodyMedium)
                                     if (version.updateAvailable && version.latestVersion != null) {
-                                        Text(
-                                            "Update available: ${version.latestVersion}",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.primary
-                                        )
+                                        Surface(
+                                            shape = MaterialTheme.shapes.extraSmall,
+                                            color = MaterialTheme.colorScheme.primaryContainer
+                                        ) {
+                                            Text(
+                                                "Update available: ${version.latestVersion}",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                            )
+                                        }
                                     }
                                 }
                             },
-                            leadingContent = { Icon(Icons.Filled.Info, contentDescription = null) }
+                            leadingContent = { 
+                                Surface(
+                                    shape = MaterialTheme.shapes.small,
+                                    color = MaterialTheme.colorScheme.secondaryContainer
+                                ) {
+                                    Icon(
+                                        Icons.Filled.Info, 
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                        modifier = Modifier.padding(8.dp)
+                                    )
+                                }
+                            }
                         )
                     }
-                    is UiState.Loading -> CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                    is UiState.Loading -> {
+                        Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                        }
+                    }
                     is UiState.Error -> {}
                 }
                 
-                Button(
+                HorizontalDivider()
+                
+                FilledTonalButton(
                     onClick = { showServerDialog = true },
-                    modifier = Modifier.align(Alignment.End)
+                    modifier = Modifier.fillMaxWidth()
                 ) {
+                    Icon(Icons.Filled.Settings, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
                     Text("Change Server")
                 }
             }
         }
 
-        Text("Server Stats", style = MaterialTheme.typography.headlineLarge)
+        // Server Stats Section
+        Text("Server Stats", style = MaterialTheme.typography.titleLarge)
         when (stats) {
             is UiState.Success -> {
                 val data = (stats as UiState.Success).data
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                ElevatedCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+                ) {
+                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         ListItem(
-                            headlineContent = { Text("Scenes") },
-                            supportingContent = { Text("${data.totalScenes}") },
-                            leadingContent = { Icon(Icons.Filled.PlayArrow, contentDescription = null) }
+                            headlineContent = { Text("Scenes", style = MaterialTheme.typography.titleMedium) },
+                            supportingContent = { Text("${data.totalScenes}", style = MaterialTheme.typography.bodyLarge) },
+                            leadingContent = { 
+                                Surface(
+                                    shape = MaterialTheme.shapes.small,
+                                    color = MaterialTheme.colorScheme.primaryContainer
+                                ) {
+                                    Icon(
+                                        Icons.Filled.PlayArrow, 
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        modifier = Modifier.padding(8.dp)
+                                    )
+                                }
+                            }
                         )
+                        HorizontalDivider()
                         ListItem(
-                            headlineContent = { Text("Images") },
-                            supportingContent = { Text("${data.totalImages}") },
-                            leadingContent = { Icon(Icons.Filled.Image, contentDescription = null) }
+                            headlineContent = { Text("Images", style = MaterialTheme.typography.titleMedium) },
+                            supportingContent = { Text("${data.totalImages}", style = MaterialTheme.typography.bodyLarge) },
+                            leadingContent = { 
+                                Surface(
+                                    shape = MaterialTheme.shapes.small,
+                                    color = MaterialTheme.colorScheme.secondaryContainer
+                                ) {
+                                    Icon(
+                                        Icons.Filled.Image, 
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                        modifier = Modifier.padding(8.dp)
+                                    )
+                                }
+                            }
                         )
+                        HorizontalDivider()
                         ListItem(
-                            headlineContent = { Text("Performers") },
-                            supportingContent = { Text("${data.totalPerformers}") },
-                            leadingContent = { Icon(Icons.Filled.Person, contentDescription = null) }
+                            headlineContent = { Text("Performers", style = MaterialTheme.typography.titleMedium) },
+                            supportingContent = { Text("${data.totalPerformers}", style = MaterialTheme.typography.bodyLarge) },
+                            leadingContent = { 
+                                Surface(
+                                    shape = MaterialTheme.shapes.small,
+                                    color = MaterialTheme.colorScheme.tertiaryContainer
+                                ) {
+                                    Icon(
+                                        Icons.Filled.Person, 
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                                        modifier = Modifier.padding(8.dp)
+                                    )
+                                }
+                            }
                         )
+                        HorizontalDivider()
                         ListItem(
-                            headlineContent = { Text("Total Playtime") },
-                            supportingContent = { Text("${(data.totalPlaytime / 3600).roundToInt()} hours") },
-                            leadingContent = { Icon(Icons.Filled.Timer, contentDescription = null) }
+                            headlineContent = { Text("Total Playtime", style = MaterialTheme.typography.titleMedium) },
+                            supportingContent = { Text("${(data.totalPlaytime / 3600).roundToInt()} hours", style = MaterialTheme.typography.bodyLarge) },
+                            leadingContent = { 
+                                Surface(
+                                    shape = MaterialTheme.shapes.small,
+                                    color = MaterialTheme.colorScheme.primaryContainer
+                                ) {
+                                    Icon(
+                                        Icons.Filled.Timer, 
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        modifier = Modifier.padding(8.dp)
+                                    )
+                                }
+                            }
                         )
+                        HorizontalDivider()
                         ListItem(
-                            headlineContent = { Text("O-Count") },
-                            supportingContent = { Text("${data.totalOCount}") },
-                            leadingContent = { Icon(Icons.Filled.WaterDrop, contentDescription = null) }
+                            headlineContent = { Text("O-Count", style = MaterialTheme.typography.titleMedium) },
+                            supportingContent = { Text("${data.totalOCount}", style = MaterialTheme.typography.bodyLarge) },
+                            leadingContent = { 
+                                Surface(
+                                    shape = MaterialTheme.shapes.small,
+                                    color = MaterialTheme.colorScheme.secondaryContainer
+                                ) {
+                                    Icon(
+                                        Icons.Filled.WaterDrop, 
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                        modifier = Modifier.padding(8.dp)
+                                    )
+                                }
+                            }
                         )
                     }
                 }
             }
-            is UiState.Loading -> CircularProgressIndicator()
-            is UiState.Error -> Text((stats as UiState.Error).message)
+            is UiState.Loading -> {
+                Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
+            is UiState.Error -> {
+                ElevatedCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.elevatedCardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer
+                    )
+                ) {
+                    Text(
+                        (stats as UiState.Error).message,
+                        modifier = Modifier.padding(16.dp),
+                        color = MaterialTheme.colorScheme.onErrorContainer
+                    )
+                }
+            }
         }
 
-        Text("About", style = MaterialTheme.typography.headlineLarge)
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        // About Section
+        Text("About", style = MaterialTheme.typography.titleLarge)
+        ElevatedCard(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+        ) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 ListItem(
-                    headlineContent = { Text("Stash Android Client") },
-                    supportingContent = { Text("Built with Material 3 Expressive") },
-                    leadingContent = { Icon(Icons.Filled.Android, contentDescription = null) }
+                    headlineContent = { Text("Stash Android Client", style = MaterialTheme.typography.titleMedium) },
+                    supportingContent = { Text("Built with Material 3 Expressive", style = MaterialTheme.typography.bodyMedium) },
+                    leadingContent = { 
+                        Surface(
+                            shape = MaterialTheme.shapes.small,
+                            color = MaterialTheme.colorScheme.tertiaryContainer
+                        ) {
+                            Icon(
+                                Icons.Filled.Android, 
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                                modifier = Modifier.padding(8.dp)
+                            )
+                        }
+                    }
                 )
+                HorizontalDivider()
                 ListItem(
-                    headlineContent = { Text("App Version") },
-                    supportingContent = { Text(BuildConfig.VERSION_NAME) },
-                    leadingContent = { Icon(Icons.Filled.Info, contentDescription = null) }
+                    headlineContent = { Text("App Version", style = MaterialTheme.typography.titleMedium) },
+                    supportingContent = { Text(BuildConfig.VERSION_NAME, style = MaterialTheme.typography.bodyLarge) },
+                    leadingContent = { 
+                        Surface(
+                            shape = MaterialTheme.shapes.small,
+                            color = MaterialTheme.colorScheme.primaryContainer
+                        ) {
+                            Icon(
+                                Icons.Filled.Info, 
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.padding(8.dp)
+                            )
+                        }
+                    }
                 )
             }
         }
+        
+        // Add some bottom padding for better scrolling
+        Spacer(Modifier.height(16.dp))
     }
     
     if (showServerDialog) {

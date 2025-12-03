@@ -1,12 +1,25 @@
 # Version History
 
-## Current Version: 0.2.0
+## Current Version: 0.2.1
 
 ### Release Date: December 3, 2025
 
 ---
 
-## Version 0.2.0 (Current)
+## Version 0.2.1 (Current)
+**Release Date:** December 3, 2025
+
+### Changes
+- Made Settings screen scrollable
+- Modernized Settings screen layout with elevated cards
+- Added colored icon containers for better visual hierarchy
+- Improved spacing and typography throughout Settings
+- Enhanced button design with full-width tonal button
+- Added dividers between list items for better separation
+
+---
+
+## Version 0.2.0
 **Release Date:** December 3, 2025
 
 ### Changes

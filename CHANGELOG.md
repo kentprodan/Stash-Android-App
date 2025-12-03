@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] - 2025-12-03
+### Changed
+- Made Settings screen scrollable
+- Modernized Settings screen layout with elevated cards
+- Added colored icon containers for better visual hierarchy
+- Improved spacing and typography throughout Settings
+- Enhanced button design with full-width tonal button
+- Added dividers between list items for better separation
+
 ## [0.2.0] - 2025-12-03
 ### Added
 - Server version display in Settings screen
