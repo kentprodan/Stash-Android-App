@@ -1,12 +1,34 @@
 # Version History
 
-## Current Version: 0.1.6
+## Current Version: 0.1.7
 
 ### Release Date: December 3, 2025
 
 ---
 
-## Version 0.1.6 (Current)
+## Version 0.1.7 (Current)
+**Release Date:** December 3, 2025
+
+### What's New
+- 📱 **TikTok-Style Layout** - Vertical action buttons on bottom right
+- 🎬 **Integrated Time Display** - Time shown with seekbar (left: current, right: total)
+- 🎨 **Transparent Controls** - Removed all background boxes for cleaner look
+- 📏 **Ultra-Thin Seekbar** - Reduced to 8dp for minimal intrusion
+- 👆 **Larger Touch Targets** - Buttons increased to 48dp with 28dp icons
+
+### Technical Changes
+- Restructured controls from horizontal to vertical Column layout
+- Positioned action buttons with Alignment.BottomEnd
+- Moved time display into Box with seekbar
+- Removed all Surface backgrounds from controls
+- Adjusted spacing: 16dp vertical gap between buttons, 80dp from bottom
+- Reduced seekbar height from 12dp to 8dp
+- Increased button modifier sizes from 40dp to 48dp
+- Increased icon modifier sizes from 20dp to 28dp
+
+---
+
+## Version 0.1.6
 **Release Date:** December 3, 2025
 
 ### What's New

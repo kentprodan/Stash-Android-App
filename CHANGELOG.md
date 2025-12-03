@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.7] - 2025-12-03
+
+### Changed
+- Redesigned Reels controls with TikTok-style vertical button layout
+- Moved action buttons to bottom right in vertical stack (O-count, Rating, Details)
+- Integrated time display with seekbar (current time on left, total duration on right)
+- Removed all semitransparent backgrounds from controls
+- Made seekbar thinner (reduced from 12dp to 8dp)
+- Increased button sizes to 48dp for better touch targets
+- Increased icon sizes to 28dp for better visibility
+
+### Improved
+- Cleaner, more modern interface with transparent overlays
+- Better use of screen space with vertical button layout
+- More intuitive time display integrated with progress bar
+- Enhanced visual clarity without background boxes
+
 ## [0.1.6] - 2025-12-03
 
 ### Added

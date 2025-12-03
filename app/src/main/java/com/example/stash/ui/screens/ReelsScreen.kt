@@ -286,138 +286,103 @@ fun ReelItem(
                     }
             )
             
-            // Bottom controls overlay
+            // Action buttons - vertical stack on bottom right
             Column(
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 16.dp, bottom = 80.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Separate backgrounds for time and buttons
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(44.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Time display with background
-                    Surface(
-                        modifier = Modifier.height(44.dp),
-                        color = Color.Black.copy(alpha = 0.5f),
-                        shape = MaterialTheme.shapes.small
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .padding(horizontal = 12.dp, vertical = 8.dp)
-                                .height(44.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
+                // O-Count
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    IconButton(onClick = onIncrementOCount, modifier = Modifier.size(48.dp)) {
+                        Icon(
+                            Icons.Default.WaterDrop,
+                            contentDescription = "O-Count",
+                            tint = Color.White,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                    scene.oCount?.let {
+                        Text(
+                            text = it.toString(),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White
+                        )
+                    }
+                }
+                
+                // Rating
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    IconButton(onClick = onRatingClick, modifier = Modifier.size(48.dp)) {
+                        Icon(
+                            Icons.Default.Star,
+                            contentDescription = "Rate",
+                            tint = if (scene.rating != null && scene.rating!! > 0) Color.Yellow else Color.White,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                    scene.rating?.let {
+                        if (it > 0) {
                             Text(
-                                text = formatTime(currentPosition),
-                                style = MaterialTheme.typography.bodySmall,
+                                text = (it / 20).toString(),
+                                style = MaterialTheme.typography.labelSmall,
                                 color = Color.White
                             )
-                            Text(
-                                text = "/",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.Gray
-                            )
-                            Text(
-                                text = formatTime(duration),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.Gray
-                            )
-                        }
-                    }
-                    
-                    // Action buttons with background
-                    Surface(
-                        modifier = Modifier.height(44.dp),
-                        color = Color.Black.copy(alpha = 0.5f),
-                        shape = MaterialTheme.shapes.small
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                                .height(44.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            // O-Count
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                IconButton(onClick = onIncrementOCount, modifier = Modifier.size(40.dp)) {
-                                    Icon(
-                                        Icons.Default.WaterDrop,
-                                        contentDescription = "O-Count",
-                                        tint = Color.White,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                }
-                                scene.oCount?.let {
-                                    Text(
-                                        text = it.toString(),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = Color.White
-                                    )
-                                }
-                            }
-                            
-                            // Rating
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                IconButton(onClick = onRatingClick, modifier = Modifier.size(40.dp)) {
-                                    Icon(
-                                        Icons.Default.Star,
-                                        contentDescription = "Rate",
-                                        tint = if (scene.rating != null && scene.rating!! > 0) Color.Yellow else Color.White,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                }
-                                scene.rating?.let {
-                                    if (it > 0) {
-                                        Text(
-                                            text = (it / 20).toString(),
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = Color.White
-                                        )
-                                    }
-                                }
-                            }
-                            
-                            // Details
-                            IconButton(onClick = onDetailsClick, modifier = Modifier.size(40.dp)) {
-                                Icon(
-                                    Icons.Default.Info,
-                                    contentDescription = "Details",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
                         }
                     }
                 }
                 
-                Spacer(Modifier.height(4.dp))
-                
-                // Thinner progress bar (below time/buttons)
-                Slider(
-                    value = if (duration > 0) currentPosition.toFloat() else 0f,
-                    onValueChange = { exoPlayer.seekTo(it.toLong()) },
-                    valueRange = 0f..duration.toFloat(),
-                    modifier = Modifier.height(12.dp),
-                    colors = SliderDefaults.colors(
-                        thumbColor = Color.White,
-                        activeTrackColor = Color.White,
-                        inactiveTrackColor = Color.Gray
+                // Details
+                IconButton(onClick = onDetailsClick, modifier = Modifier.size(48.dp)) {
+                    Icon(
+                        Icons.Default.Info,
+                        contentDescription = "Details",
+                        tint = Color.White,
+                        modifier = Modifier.size(28.dp)
                     )
-                )
+                }
+            }
+            
+            // Bottom seekbar with time overlay
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp, bottom = 12.dp)
+            ) {
+                Column {
+                    // Time display row above seekbar
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = formatTime(currentPosition),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White
+                        )
+                        Text(
+                            text = formatTime(duration),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White
+                        )
+                    }
+                    
+                    // Thin progress bar
+                    Slider(
+                        value = if (duration > 0) currentPosition.toFloat() else 0f,
+                        onValueChange = { exoPlayer.seekTo(it.toLong()) },
+                        valueRange = 0f..duration.toFloat(),
+                        modifier = Modifier.height(8.dp),
+                        colors = SliderDefaults.colors(
+                            thumbColor = Color.White,
+                            activeTrackColor = Color.White,
+                            inactiveTrackColor = Color.Gray
+                        )
+                    )
+                }
             }
         } else if (scene.thumbnail != null) {
             // Fallback to thumbnail
