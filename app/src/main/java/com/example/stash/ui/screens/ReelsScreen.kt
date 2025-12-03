@@ -345,44 +345,43 @@ fun ReelItem(
                 }
             }
             
-            // Bottom seekbar with time overlay
-            Box(
+            // Bottom seekbar with time on sides
+            Row(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp, bottom = 12.dp)
+                    .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Column {
-                    // Time display row above seekbar
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = formatTime(currentPosition),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.White
-                        )
-                        Text(
-                            text = formatTime(duration),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.White
-                        )
-                    }
-                    
-                    // Thin progress bar
-                    Slider(
-                        value = if (duration > 0) currentPosition.toFloat() else 0f,
-                        onValueChange = { exoPlayer.seekTo(it.toLong()) },
-                        valueRange = 0f..duration.toFloat(),
-                        modifier = Modifier.height(8.dp),
-                        colors = SliderDefaults.colors(
-                            thumbColor = Color.White,
-                            activeTrackColor = Color.White,
-                            inactiveTrackColor = Color.Gray
-                        )
+                // Current time on left
+                Text(
+                    text = formatTime(currentPosition),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White
+                )
+                
+                // Very thin progress bar in center
+                Slider(
+                    value = if (duration > 0) currentPosition.toFloat() else 0f,
+                    onValueChange = { exoPlayer.seekTo(it.toLong()) },
+                    valueRange = 0f..duration.toFloat(),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(4.dp),
+                    colors = SliderDefaults.colors(
+                        thumbColor = Color.White,
+                        activeTrackColor = Color.White,
+                        inactiveTrackColor = Color.Gray
                     )
-                }
+                )
+                
+                // Total duration on right
+                Text(
+                    text = formatTime(duration),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White
+                )
             }
         } else if (scene.thumbnail != null) {
             // Fallback to thumbnail

@@ -1,12 +1,29 @@
 # Version History
 
-## Current Version: 0.1.7
+## Current Version: 0.1.8
 
 ### Release Date: December 3, 2025
 
 ---
 
-## Version 0.1.7 (Current)
+## Version 0.1.8 (Current)
+**Release Date:** December 3, 2025
+
+### What's New
+- 📏 **Ultra-Thin Seekbar** - Reduced to 4dp for minimal visual footprint
+- ⏱️ **Inline Time Display** - Time flanks seekbar on left and right sides
+- 🎯 **Horizontal Layout** - All elements aligned in single Row
+
+### Technical Changes
+- Changed seekbar height from 8dp to 4dp
+- Restructured from Column/Box layout to single Row
+- Added weight(1f) modifier to Slider for flexible width
+- Positioned times with 8dp spacing between elements
+- Maintained vertical center alignment for all components
+
+---
+
+## Version 0.1.7
 **Release Date:** December 3, 2025
 
 ### What's New
