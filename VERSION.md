@@ -1,12 +1,32 @@
 # Version History
 
-## Current Version: 0.1.5
+## Current Version: 0.1.6
 
 ### Release Date: December 3, 2025
 
 ---
 
-## Version 0.1.5 (Current)
+## Version 0.1.6 (Current)
+**Release Date:** December 3, 2025
+
+### What's New
+- 🎬 **Tap to Pause/Play** - Tap center of screen to toggle video playback
+- 📊 **Inline Metrics** - O-count and rating numbers now appear next to icons
+- 🎨 **Separated Controls** - Time and buttons have distinct background sections
+- 📏 **Compact UI** - Reduced control heights to 44dp for cleaner look
+- 📉 **Thinner Seekbar** - Reduced from 20dp to 12dp for less intrusion
+
+### Technical Changes
+- Added tap gesture detection with pointerInput modifier
+- Implemented play/pause state management
+- Split control backgrounds into separate Surface components
+- Standardized control section heights to 44dp
+- Added inline Row layouts for metrics display
+- Rating displayed as 1-5 stars (converted from 0-100 scale)
+
+---
+
+## Version 0.1.5
 **Release Date:** December 3, 2025
 
 ### What's New
