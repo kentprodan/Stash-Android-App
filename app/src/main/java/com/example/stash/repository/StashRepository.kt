@@ -13,6 +13,7 @@ data class TagItem(val id: String, val name: String)
 data class ImageItem(val id: String, val title: String, val thumbnail: String?)
 data class PerformerItem(val id: String, val name: String, val image: String?, val rating: Int?, val favorite: Boolean, val sceneCount: Int, val oCounter: Int?)
 data class ServerStats(val totalScenes: Int, val totalImages: Int, val totalPerformers: Int, val totalPlaytime: Double, val totalOCount: Int)
+data class VersionInfo(val currentVersion: String, val latestVersion: String?, val updateAvailable: Boolean)
 
 class StashRepository(private val apollo: ApolloClient, private val baseUrl: String = "", private val apiKey: String = "") {
     private fun fullUrl(path: String?): String? {
@@ -143,6 +144,22 @@ class StashRepository(private val apollo: ApolloClient, private val baseUrl: Str
             totalPerformers = stats?.performer_count ?: 0,
             totalPlaytime = stats?.total_play_duration ?: 0.0,
             totalOCount = stats?.total_o_count ?: 0
+        )
+    }
+
+    suspend fun versionInfo(): VersionInfo = withContext(Dispatchers.IO) {
+        val response = apollo.query(GetVersionQuery()).execute()
+        val current = response.data?.version?.version ?: "Unknown"
+        val latest = response.data?.latestversion?.version
+        val updateAvailable = if (latest != null && current != "Unknown") {
+            current != latest
+        } else {
+            false
+        }
+        VersionInfo(
+            currentVersion = current,
+            latestVersion = latest,
+            updateAvailable = updateAvailable
         )
     }
 

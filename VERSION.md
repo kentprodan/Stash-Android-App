@@ -1,12 +1,25 @@
 # Version History
 
-## Current Version: 0.1.19
+## Current Version: 0.2.0
 
 ### Release Date: December 3, 2025
 
 ---
 
-## Version 0.1.19 (Current)
+## Version 0.2.0 (Current)
+**Release Date:** December 3, 2025
+
+### Changes
+- Server version display in Settings screen
+- Update notification when new server version is available
+- Change server button (placeholder)
+- Icons for all server stats (scenes, images, performers, playtime, o-count)
+- App version display in About section
+- BuildConfig support for version information
+
+---
+
+## Version 0.1.19
 **Release Date:** December 3, 2025
 
 ### Changes

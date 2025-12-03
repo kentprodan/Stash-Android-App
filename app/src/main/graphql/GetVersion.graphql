@@ -1,0 +1,12 @@
+query GetVersion {
+  version {
+    version
+    hash
+    build_time
+  }
+  latestversion {
+    version
+    shorthash
+    release_date
+  }
+}

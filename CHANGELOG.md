@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2025-12-03
+### Added
+- Server version display in Settings screen
+- Update notification when new server version is available
+- Change server button (placeholder)
+- Icons for all server stats (scenes, images, performers, playtime, o-count)
+- App version display in About section
+- BuildConfig support for version information
+
 ## [0.1.19] - 2025-12-03
 ### Changed
 - Fixed play count tracking to prevent counting replays
