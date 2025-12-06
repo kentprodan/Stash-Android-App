@@ -15,6 +15,13 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private val settingsStore = SettingsStore(application)
     val serverUrl: StateFlow<String?> = settingsStore.serverUrl.stateIn(viewModelScope, SharingStarted.Eagerly, null)
     val apiKey: StateFlow<String?> = settingsStore.apiKey.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+    val themeMode: StateFlow<String?> = settingsStore.themeMode.stateIn(viewModelScope, SharingStarted.Eagerly, "system")
+
+    fun setThemeMode(mode: String) {
+        viewModelScope.launch {
+            settingsStore.setThemeMode(mode)
+        }
+    }
 
     private val _stats = MutableStateFlow<UiState<ServerStats>>(UiState.Loading)
     val stats: StateFlow<UiState<ServerStats>> = _stats.asStateFlow()

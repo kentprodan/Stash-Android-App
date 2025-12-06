@@ -23,16 +23,21 @@ import com.example.stash.ui.viewmodel.HomeViewModel
 import com.example.stash.ui.viewmodel.UiState
 
 @Composable
-fun HomeScreen(navController: NavController, viewModel: HomeViewModel = viewModel()) {
+fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
     val performers by viewModel.performers.collectAsState()
     val images by viewModel.images.collectAsState()
     val scenes by viewModel.scenes.collectAsState()
     val continueWatching by viewModel.continueWatching.collectAsState()
 
     LazyColumn(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        // Screen title
+        item {
+            Text("Home", style = MaterialTheme.typography.headlineLarge)
+        }
+
         if (continueWatching is UiState.Success && (continueWatching as UiState.Success).data.isNotEmpty()) {
             item {
-                Text("Continue Watching", style = MaterialTheme.typography.headlineLarge)
+                Text("Continue Watching", style = MaterialTheme.typography.titleMedium)
                 LazyRow(contentPadding = PaddingValues(horizontal = 8.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     items((continueWatching as UiState.Success).data) { item ->
                         SceneCard(item, onClick = { navController.navigate("scene/${item.id}") })
@@ -42,13 +47,18 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = viewMode
         }
 
         item {
-            Text("New Performers", style = MaterialTheme.typography.headlineLarge)
+            Text("New Performers", style = MaterialTheme.typography.titleMedium)
             when (performers) {
                 is UiState.Success -> {
-                    LazyRow(contentPadding = PaddingValues(horizontal = 8.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        items((performers as UiState.Success).data) { item ->
-                            PerformerCard(item, onClick = { navController.navigate("performer/${item.id}") })
+                    val performerList = (performers as UiState.Success).data
+                    val chunked = performerList.chunked((performerList.size + 1) / 2)
+                    chunked.forEach { rowItems ->
+                        LazyRow(contentPadding = PaddingValues(horizontal = 8.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            items(rowItems) { item ->
+                                PerformerCard(item, onClick = { navController.navigate("performer/${item.id}") })
+                            }
                         }
+                        Spacer(Modifier.height(8.dp))
                     }
                 }
                 is UiState.Loading -> CircularProgressIndicator()
@@ -57,13 +67,18 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = viewMode
         }
 
         item {
-            Text("New Images", style = MaterialTheme.typography.headlineLarge)
+            Text("New Images", style = MaterialTheme.typography.titleMedium)
             when (images) {
                 is UiState.Success -> {
-                    LazyRow(contentPadding = PaddingValues(horizontal = 8.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        items((images as UiState.Success).data) { item ->
-                            ImageCard(item, onClick = { navController.navigate("image/${item.id}") })
+                    val imageList = (images as UiState.Success).data
+                    val chunked = imageList.chunked((imageList.size + 1) / 2)
+                    chunked.forEach { rowItems ->
+                        LazyRow(contentPadding = PaddingValues(horizontal = 8.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            items(rowItems) { item ->
+                                ImageCard(item, onClick = { navController.navigate("image/${item.id}") })
+                            }
                         }
+                        Spacer(Modifier.height(8.dp))
                     }
                 }
                 is UiState.Loading -> CircularProgressIndicator()
@@ -72,13 +87,18 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel = viewMode
         }
 
         item {
-            Text("New Scenes", style = MaterialTheme.typography.headlineLarge)
+            Text("New Scenes", style = MaterialTheme.typography.titleMedium)
             when (scenes) {
                 is UiState.Success -> {
-                    LazyRow(contentPadding = PaddingValues(horizontal = 8.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        items((scenes as UiState.Success).data) { item ->
-                            SceneCard(item, onClick = { navController.navigate("scene/${item.id}") })
+                    val sceneList = (scenes as UiState.Success).data
+                    val chunked = sceneList.chunked((sceneList.size + 1) / 2)
+                    chunked.forEach { rowItems ->
+                        LazyRow(contentPadding = PaddingValues(horizontal = 8.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            items(rowItems) { item ->
+                                SceneCard(item, onClick = { navController.navigate("scene/${item.id}") })
+                            }
                         }
+                        Spacer(Modifier.height(8.dp))
                     }
                 }
                 is UiState.Loading -> CircularProgressIndicator()

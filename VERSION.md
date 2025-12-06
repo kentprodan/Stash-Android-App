@@ -1,13 +1,13 @@
 # Version History
 
-## Current Version: 0.2.1
+## Current Version: 0.0.11
 
 ### Release Date: December 3, 2025
 
 ---
 
-## Version 0.2.1 (Current)
-**Release Date:** December 3, 2025
+## Version 0.0.11 (Current)
+**Release Date:** December 6, 2025
 
 ### Changes
 - Made Settings screen scrollable

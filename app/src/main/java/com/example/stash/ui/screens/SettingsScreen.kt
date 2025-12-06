@@ -23,8 +23,10 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = 
     val api by viewModel.apiKey.collectAsState()
     val stats by viewModel.stats.collectAsState()
     val versionInfo by viewModel.versionInfo.collectAsState()
-    val connected = (url?.isNotBlank() == true) && (api?.isNotBlank() == true)
+    val themeMode by viewModel.themeMode.collectAsState()
+    val themeOptions = listOf("system", "light", "dark")
     var showServerDialog by remember { mutableStateOf(false) }
+    val connected = (url?.isNotBlank() == true) && (api?.isNotBlank() == true)
 
     Column(
         Modifier
@@ -39,8 +41,39 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = 
             style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.primary
         )
-        
         Spacer(Modifier.height(8.dp))
+
+        // Theme Selection Section
+        Text("Theme", style = MaterialTheme.typography.titleLarge)
+        ElevatedCard(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+        ) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text("App Theme", style = MaterialTheme.typography.titleMedium)
+                themeOptions.forEach { option ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                    ) {
+                        RadioButton(
+                            selected = themeMode == option,
+                            onClick = { viewModel.setThemeMode(option) }
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            when (option) {
+                                "system" -> "System Default"
+                                "light" -> "Light"
+                                "dark" -> "Dark"
+                                else -> option
+                            },
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
+            }
+        }
         
         // Connection Section
         Text("Connection", style = MaterialTheme.typography.titleLarge)

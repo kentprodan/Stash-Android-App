@@ -31,9 +31,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            StashTheme {
+            val settingsStore = SettingsStore(this)
+            val themeMode by settingsStore.themeMode.collectAsState(initial = "system")
+            val darkTheme = when (themeMode) {
+                "dark" -> true
+                "light" -> false
+                else -> androidx.compose.foundation.isSystemInDarkTheme()
+            }
+            StashTheme(darkTheme = darkTheme) {
                 val navController = rememberNavController()
-                val settingsStore = SettingsStore(this)
                 val serverUrl by settingsStore.serverUrl.collectAsState(initial = null)
                 val apiKey by settingsStore.apiKey.collectAsState(initial = null)
                 val items = listOf(
@@ -42,6 +48,7 @@ class MainActivity : ComponentActivity() {
                     NavItem("reels", Icons.Default.PlayArrow, "Reels"),
                     NavItem("settings", Icons.Default.Settings, "Settings")
                 )
+                val homeViewModel: com.example.stash.ui.viewmodel.HomeViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
                 Scaffold(
                     bottomBar = {
                         NavigationBar {
@@ -67,7 +74,7 @@ class MainActivity : ComponentActivity() {
                     val start = if (serverUrl.isNullOrBlank() || apiKey.isNullOrBlank()) "onboarding" else "home"
                     NavHost(navController, startDestination = start, modifier = Modifier.padding(innerPadding)) {
                         composable("onboarding") { OnboardingScreen(navController, settingsStore) }
-                        composable("home") { HomeScreen(navController) }
+                        composable("home") { HomeScreen(navController, viewModel = homeViewModel) }
                         composable("browse") { BrowseScreen(navController) }
                         composable("reels") { ReelsScreen(navController) }
                         composable("settings") { SettingsScreen(navController) }
@@ -81,7 +88,7 @@ class MainActivity : ComponentActivity() {
                             "image/{imageId}",
                             arguments = listOf(navArgument("imageId") { type = NavType.StringType })
                         ) { backStackEntry ->
-                            ImageDetailScreen(navController, backStackEntry.arguments?.getString("imageId") ?: "")
+                            ImageDetailScreen(navController, backStackEntry.arguments?.getString("imageId") ?: "", viewModel = homeViewModel)
                         }
                         composable(
                             "performer/{performerId}",
